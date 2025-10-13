@@ -33,5 +33,28 @@ model Producto {
   categoriaId Int
   categoria   Categoria @relation(fields: [categoriaId], references: [id])
 
+  ventas VentaProducto[]
   @@unique([nombre, categoriaId])
+}
+
+// Modelo para registrar cada transacción de venta
+model Venta {
+  id        Int      @id @default(autoincrement())
+  total     Float
+  creadoEn  DateTime @default(now())
+
+  productosVendidos VentaProducto[]
+}
+
+// Modelo intermedio para registrar qué productos se vendieron en cada venta
+model VentaProducto {
+  id         Int @id @default(autoincrement())
+  cantidad   Int
+  precioUnitario Float 
+
+  ventaId Int
+  venta   Venta @relation(fields: [ventaId], references: [id])
+
+  productoId Int
+  producto   Producto @relation(fields: [productoId], references: [id])
 }
