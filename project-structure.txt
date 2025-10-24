@@ -1,0 +1,46 @@
+├── app/
+│   ├── api/
+│   │   ├── categorias/
+│   │   │   └── route.ts (1.1 KB)
+│   │   ├── productos/
+│   │   │   ├── [id]/
+│   │   │   │   └── route.ts (1.9 KB)
+│   │   │   └── route.ts (1.4 KB)
+│   │   ├── reportes/
+│   │   │   ├── mas-vendidos/
+│   │   │   │   └── route.ts (1.7 KB)
+│   │   │   └── route.ts (1.8 KB)
+│   │   └── ventas/
+│   │       └── route.ts (2.5 KB)
+│   ├── inventario/
+│   │   └── page.tsx (19.4 KB)
+│   ├── pos/
+│   │   └── page.tsx (13.3 KB)
+│   ├── reportes/
+│   │   └── page.tsx (12.6 KB)
+│   ├── favicon.ico (25.3 KB)
+│   ├── globals.css (0.5 KB)
+│   ├── layout.tsx (0.7 KB)
+│   └── page.tsx (3.9 KB)
+├── prisma/
+│   ├── migrations/
+│   │   ├── 20251013125610_init/
+│   │   │   └── migration.sql (0.9 KB)
+│   │   ├── 20251013162024_agregar_modelos_venta/
+│   │   │   └── migration.sql (0.8 KB)
+│   │   └── migration_lock.toml (0.1 KB)
+│   └── schema.prisma (1.5 KB)
+├── public/
+│   ├── file.svg (0.4 KB)
+│   ├── globe.svg (1.0 KB)
+│   ├── next.svg (1.3 KB)
+│   ├── vercel.svg (0.1 KB)
+│   └── window.svg (0.4 KB)
+├── eslint.config.mjs (0.5 KB)
+├── next-env.d.ts (0.3 KB)
+├── next.config.ts (0.1 KB)
+├── package-lock.json (221.1 KB)
+├── package.json (0.6 KB)
+├── postcss.config.mjs (0.1 KB)
+├── README.md (1.4 KB)
+└── tsconfig.json (0.6 KB)

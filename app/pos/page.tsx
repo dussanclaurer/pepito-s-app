@@ -4,17 +4,9 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-
-interface Producto {
-  id: number;
-  nombre: string;
-  precio: number;
-  inventario: number;
-}
-
-interface CartItem extends Producto {
-  cantidad: number;
-}
+import PaymentModal from '@/app/components/pos/PaymentModal';
+import ReceiptModal from '@/app/components/pos/ReceiptModal';
+import type { Producto, CartItem, VentaData, VentaParaRecibo } from '@/app/types/index';
 
 export default function POSPage() {
   const [productos, setProductos] = useState<Producto[]>([]);
@@ -22,6 +14,17 @@ export default function POSPage() {
   const [busqueda, setBusqueda] = useState('');
   const [cargando, setCargando] = useState(true);
   const router = useRouter();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [notificacion, setNotificacion] = useState<string | null>(null);
+  const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
+  const [ventaParaRecibo, setVentaParaRecibo] = useState<VentaParaRecibo | null>(null);
+
+  const mostrarNotificacion = (mensaje: string) => {
+    setNotificacion(mensaje);
+    setTimeout(() => {
+      setNotificacion(null);
+    }, 3000);
+  };
 
   useEffect(() => {
     const cargarProductos = async () => {
@@ -31,6 +34,7 @@ export default function POSPage() {
         setProductos(data);
       } catch (error) {
         console.error('Error cargando productos:', error);
+        mostrarNotificacion('Error al cargar productos.');
       } finally {
         setCargando(false);
       }
@@ -40,7 +44,7 @@ export default function POSPage() {
 
   const agregarAlCarrito = (producto: Producto) => {
     if (producto.inventario <= 0) {
-      alert('Producto sin stock disponible');
+      mostrarNotificacion('Producto sin stock disponible');
       return;
     }
 
@@ -48,7 +52,7 @@ export default function POSPage() {
       const productoExistente = prevCarrito.find(item => item.id === producto.id);
       if (productoExistente) {
         if (productoExistente.cantidad >= producto.inventario) {
-          alert('No hay suficiente stock disponible');
+          mostrarNotificacion('No hay suficiente stock disponible');
           return prevCarrito;
         }
         return prevCarrito.map(item =>
@@ -67,15 +71,15 @@ export default function POSPage() {
       if (cantidad <= 0) {
         return prevCarrito.filter(item => item.id !== productoId);
       }
-      
+
       const producto = productos.find(p => p.id === productoId);
       if (producto && cantidad > producto.inventario) {
-        alert('No hay suficiente stock disponible');
+        mostrarNotificacion('No hay suficiente stock disponible');
         return prevCarrito.map(item =>
           item.id === productoId ? { ...item, cantidad: item.cantidad } : item
         );
       }
-      
+
       return prevCarrito.map(item =>
         item.id === productoId ? { ...item, cantidad } : item
       );
@@ -86,39 +90,39 @@ export default function POSPage() {
     setCarrito([]);
   };
 
-  const finalizarVenta = async () => {
+  const finalizarVenta = () => {
     if (carrito.length === 0) {
-      alert('El carrito está vacío.');
+      mostrarNotificacion('El carrito está vacío.');
       return;
     }
+    setIsModalOpen(true);
+  };
+
+  const handleVentaExitosa = async (ventaData: VentaData) => {
+    mostrarNotificacion('Venta realizada con éxito!');
+    
+    setVentaParaRecibo({ venta: ventaData, items: carrito });
 
     try {
-      const ventaItems = carrito.map(item => ({
-        productoId: item.id,
-        cantidad: item.cantidad,
-      }));
-
-      const response = await fetch('/api/ventas', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(ventaItems),
-      });
-
-      if (response.ok) {
-        alert('Venta realizada con éxito!');
-        limpiarCarrito();
-        // Recargar productos para actualizar stock
-        const res = await fetch('/api/productos');
-        const data = await res.json();
-        setProductos(data);
-      } else {
-        const errorData = await response.json();
-        alert(`Error al realizar la venta: ${errorData.message}`);
-      }
+      const res = await fetch('/api/productos');
+      const data = await res.json();
+      setProductos(data);
     } catch (error) {
-      alert('Error al conectar con el servidor');
+      mostrarNotificacion('Error al recargar productos, recarga la página.');
     }
   };
+
+   const handleCloseReceipt = () => {
+    setIsReceiptModalOpen(false);
+    setVentaParaRecibo(null); 
+    limpiarCarrito(); 
+  };
+
+  useEffect(() => {
+    if (ventaParaRecibo) {
+      setIsReceiptModalOpen(true);
+    }
+  }, [ventaParaRecibo]); 
 
   const totalCarrito = carrito.reduce((total, item) => total + item.precio * item.cantidad, 0);
 
@@ -138,7 +142,7 @@ export default function POSPage() {
               </div>
               <h1 className="text-2xl font-bold text-gray-800">Pepito´s</h1>
             </div>
-            
+
             <nav className="flex space-x-4">
               <button
                 onClick={() => router.push('/pos')}
@@ -162,6 +166,13 @@ export default function POSPage() {
           </div>
         </div>
       </header>
+
+      {/* --- NUEVO: Contenedor de Notificación --- */}
+      {notificacion && (
+        <div className="fixed top-24 right-6 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-slide-in-out">
+          {notificacion}
+        </div>
+      )}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -194,11 +205,10 @@ export default function POSPage() {
                     <div
                       key={producto.id}
                       onClick={() => agregarAlCarrito(producto)}
-                      className={`bg-gradient-to-br from-white to-gray-50 p-4 rounded-xl shadow-md cursor-pointer text-center hover:shadow-lg transition-all duration-300 border-2 ${
-                        producto.inventario <= 0 
-                          ? 'border-red-200 opacity-60' 
-                          : 'border-purple-100 hover:border-purple-300'
-                      }`}
+                      className={`bg-gradient-to-br from-white to-gray-50 p-4 rounded-xl shadow-md cursor-pointer text-center hover:shadow-lg transition-all duration-300 border-2 ${producto.inventario <= 0
+                        ? 'border-red-200 opacity-60'
+                        : 'border-purple-100 hover:border-purple-300'
+                        }`}
                     >
                       <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-3 text-white text-lg">
                         🍰
@@ -209,11 +219,10 @@ export default function POSPage() {
                       <p className="text-lg font-bold text-purple-600 mb-1">
                         Bs. {producto.precio.toFixed(2)}
                       </p>
-                      <div className={`text-xs font-medium px-2 py-1 rounded-full ${
-                        producto.inventario > 0 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-red-100 text-red-800'
-                      }`}>
+                      <div className={`text-xs font-medium px-2 py-1 rounded-full ${producto.inventario > 0
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-red-100 text-red-800'
+                        }`}>
                         {producto.inventario > 0 ? `${producto.inventario} en stock` : 'Sin stock'}
                       </div>
                     </div>
@@ -250,8 +259,8 @@ export default function POSPage() {
                 ) : (
                   <div className="space-y-3">
                     {carrito.map(item => (
-                      <div 
-                        key={item.id} 
+                      <div
+                        key={item.id}
                         className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-100 hover:border-purple-200 transition-colors"
                       >
                         <div className="flex justify-between items-start mb-2">
@@ -314,6 +323,27 @@ export default function POSPage() {
           </div>
         </div>
       </div>
+
+      {/* --- Renderizar el Modal --- */}
+      <PaymentModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        total={totalCarrito}
+        cartItems={carrito.map(item => ({
+          productoId: item.id,
+          cantidad: item.cantidad,
+        }))}
+        onVentaExitosa={handleVentaExitosa}
+        setNotificacion={mostrarNotificacion}
+      />
+
+      {/* --- Renderizar el Modal de Recibo --- */}
+      <ReceiptModal
+        isOpen={isReceiptModalOpen}
+        onClose={handleCloseReceipt} 
+        ventaData={ventaParaRecibo?.venta}
+        cartItems={ventaParaRecibo?.items}
+      />
     </div>
   );
 }

@@ -1,0 +1,7 @@
+-- CreateEnum
+CREATE TYPE "MetodoPago" AS ENUM ('EFECTIVO', 'QR');
+
+-- AlterTable
+ALTER TABLE "Venta" ADD COLUMN     "cambio" DOUBLE PRECISION NOT NULL DEFAULT 0,
+ADD COLUMN     "metodoPago" "MetodoPago" NOT NULL DEFAULT 'EFECTIVO',
+ADD COLUMN     "montoRecibido" DOUBLE PRECISION NOT NULL DEFAULT 0;

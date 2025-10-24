@@ -1,7 +1,7 @@
 // app/api/ventas/route.ts
 
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, MetodoPago } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -10,12 +10,25 @@ interface CartItem {
   cantidad: number;
 }
 
+interface PaymentDetails {
+  metodo: MetodoPago; 
+  montoRecibido: number;
+}
+
+interface VentaRequest {
+  cartItems: CartItem[];
+  payment: PaymentDetails;
+}
+
 export async function POST(request: Request) {
   try {
-    const cartItems: CartItem[] = await request.json();
+    const { cartItems, payment }: VentaRequest = await request.json();
 
     if (!cartItems || cartItems.length === 0) {
       return NextResponse.json({ message: "El carrito está vacío" }, { status: 400 });
+    }
+    if (!payment || !payment.metodo || payment.montoRecibido === undefined) {
+      return NextResponse.json({ message: "Faltan detalles del pago" }, { status: 400 });
     }
 
     const productIds = cartItems.map(item => item.productoId);
@@ -47,10 +60,26 @@ export async function POST(request: Request) {
       totalVenta += producto.precio * item.cantidad;
     }
 
+
+    if (payment.montoRecibido < totalVenta) {
+      return NextResponse.json(
+        { message: `Monto recibido (${payment.montoRecibido}) es menor que el total (${totalVenta}).` },
+        { status: 400 } 
+      );
+    }
+
+    const cambioCalculado = (payment.metodo === 'EFECTIVO') 
+      ? payment.montoRecibido - totalVenta 
+      : 0;
+
     const ventaRealizada = await prisma.$transaction(async (tx) => {
+      
       const venta = await tx.venta.create({
         data: {
           total: totalVenta,
+          metodoPago: payment.metodo,         
+          montoRecibido: payment.montoRecibido, 
+          cambio: cambioCalculado,           
         },
       });
 
