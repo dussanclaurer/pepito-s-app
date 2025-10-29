@@ -100,7 +100,7 @@ export default function POSPage() {
 
   const handleVentaExitosa = async (ventaData: VentaData) => {
     mostrarNotificacion('Venta realizada con éxito!');
-    
+
     setVentaParaRecibo({ venta: ventaData, items: carrito });
 
     try {
@@ -112,17 +112,17 @@ export default function POSPage() {
     }
   };
 
-   const handleCloseReceipt = () => {
+  const handleCloseReceipt = () => {
     setIsReceiptModalOpen(false);
-    setVentaParaRecibo(null); 
-    limpiarCarrito(); 
+    setVentaParaRecibo(null);
+    limpiarCarrito();
   };
 
   useEffect(() => {
     if (ventaParaRecibo) {
       setIsReceiptModalOpen(true);
     }
-  }, [ventaParaRecibo]); 
+  }, [ventaParaRecibo]);
 
   const totalCarrito = carrito.reduce((total, item) => total + item.precio * item.cantidad, 0);
 
@@ -161,6 +161,12 @@ export default function POSPage() {
                 className="bg-white text-purple-600 border border-purple-600 px-4 py-2 rounded-lg font-semibold hover:bg-purple-50 transition-colors"
               >
                 Reportes
+              </button>
+              <button
+                onClick={() => router.push('/cierre-caja')}
+                className="bg-white text-purple-600 border border-purple-600 px-4 py-2 rounded-lg font-semibold hover:bg-purple-50 transition-colors"
+              >
+                Cierre de Caja
               </button>
             </nav>
           </div>
@@ -340,7 +346,7 @@ export default function POSPage() {
       {/* --- Renderizar el Modal de Recibo --- */}
       <ReceiptModal
         isOpen={isReceiptModalOpen}
-        onClose={handleCloseReceipt} 
+        onClose={handleCloseReceipt}
         ventaData={ventaParaRecibo?.venta}
         cartItems={ventaParaRecibo?.items}
       />
