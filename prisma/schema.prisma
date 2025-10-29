@@ -7,10 +7,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// --- NUEVO ENUM PARA METODOS DE PAGO ---
+// ENUM PARA METODOS DE PAGO
 enum MetodoPago {
   EFECTIVO
   QR
+}
+
+// Enum para los estados de un pedido
+enum EstadoPedido {
+  PENDIENTE
+  EN_PROGRESO
+  LISTO_PARA_ENTREGA
+  COMPLETADO
+  CANCELADO
 }
 
 // Modelo para las categorías de productos
@@ -64,3 +73,27 @@ model VentaProducto {
   producto   Producto @relation(fields: [productoId], references: [id])
 }
 
+// Modelo para los Clientes
+model Cliente {
+  id       Int    @id @default(autoincrement())
+  nombre   String
+  telefono String @unique // Usamos el teléfono como identificador único
+  creadoEn DateTime @default(now())
+
+  pedidos Pedido[]
+}
+
+// Modelo para los Pedidos Personalizados
+model Pedido {
+  id            Int          @id @default(autoincrement())
+  detalles      String       @db.Text 
+  fechaEntrega  DateTime     
+  montoTotal    Float
+  anticipo      Float        @default(0) 
+  estado        EstadoPedido @default(PENDIENTE) 
+  creadoEn      DateTime     @default(now())
+  actualizadoEn DateTime     @updatedAt
+
+  clienteId Int
+  cliente   Cliente @relation(fields: [clienteId], references: [id])
+}

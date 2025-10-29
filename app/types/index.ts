@@ -26,3 +26,27 @@ export interface VentaParaRecibo {
   venta: VentaData;
   items: CartItem[];
 }
+
+import { EstadoPedido as PrismaEstadoPedido } from '@prisma/client';
+
+export type EstadoPedido = PrismaEstadoPedido;
+
+export interface Cliente {
+  id: number;
+  nombre: string;
+  telefono: string;
+  creadoEn: string;
+}
+
+export interface Pedido {
+  id: number;
+  detalles: string;
+  fechaEntrega: string; 
+  montoTotal: number;
+  anticipo: number;
+  estado: EstadoPedido;
+  creadoEn: string;
+  
+  clienteId: number;
+  cliente: Cliente; 
+}

@@ -151,6 +151,12 @@ export default function POSPage() {
                 Punto de Venta
               </button>
               <button
+                onClick={() => router.push('/pedidos')}
+                className="bg-white text-purple-600 border border-purple-600 px-4 py-2 rounded-lg font-semibold hover:bg-purple-50 transition-colors"
+              >
+                Pedidos
+              </button>
+              <button
                 onClick={() => router.push('/inventario')}
                 className="bg-white text-purple-600 border border-purple-600 px-4 py-2 rounded-lg font-semibold hover:bg-purple-50 transition-colors"
               >
