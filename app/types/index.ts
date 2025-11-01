@@ -50,3 +50,22 @@ export interface Pedido {
   clienteId: number;
   cliente: Cliente; 
 }
+
+export interface VentaProductoDetalle {
+  id: number;
+  cantidad: number;
+  precioUnitario: number;
+  producto: {
+    nombre: string;
+  };
+}
+
+export interface VentaCompleta {
+  id: number;
+  total: number;
+  creadoEn: string;
+  metodoPago: string;
+  montoRecibido: number;
+  cambio: number;
+  productosVendidos: VentaProductoDetalle[];
+}

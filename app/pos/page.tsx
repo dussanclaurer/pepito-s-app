@@ -169,6 +169,12 @@ export default function POSPage() {
                 Reportes
               </button>
               <button
+                onClick={() => router.push('/historial-ventas')}
+                className="bg-purple-600 text-white px-3 py-2 rounded-lg font-semibold hover:bg-purple-700 transition-colors shadow-md text-sm"
+              >
+                Historial
+              </button>
+              <button
                 onClick={() => router.push('/cierre-caja')}
                 className="bg-white text-purple-600 border border-purple-600 px-4 py-2 rounded-lg font-semibold hover:bg-purple-50 transition-colors"
               >
