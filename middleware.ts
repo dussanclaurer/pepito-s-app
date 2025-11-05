@@ -1,3 +1,5 @@
+// middleware.ts
+
 import { getToken } from 'next-auth/jwt';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -20,13 +22,15 @@ export async function middleware(req: NextRequest) {
     const userRole = token.role as string;
 
     const adminRoutes = [
-      '/inventario',      // Página de inventario
-      '/reportes',        // Página de reportes
-      '/historial-ventas',// Página de historial
-      '/api/productos',   // API de productos (CRUD)
-      '/api/categorias',  // API de categorías
-      '/api/reportes',    // API de reportes
-      '/api/historial-ventas', // API de historial
+      '/inventario',
+      '/reportes',
+      '/historial-ventas',
+      '/admin', 
+      '/api/productos',
+      '/api/categorias',
+      '/api/reportes',
+      '/api/historial-ventas',
+      '/api/users', 
     ];
 
     const isCajero = userRole === 'CAJERO';
