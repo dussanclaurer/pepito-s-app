@@ -132,60 +132,8 @@ export default function POSPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50">
-      {/* Header con Navegación */}
-      <header className="bg-white shadow-lg border-b border-purple-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center space-x-4">
-              <div className="bg-gradient-to-r from-purple-600 to-pink-500 p-2 rounded-lg">
-                <span className="text-white font-bold text-xl">🍰</span>
-              </div>
-              <h1 className="text-2xl font-bold text-gray-800">Pepito´s</h1>
-            </div>
 
-            <nav className="flex space-x-4">
-              <button
-                onClick={() => router.push('/pos')}
-                className="bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-purple-700 transition-colors shadow-md"
-              >
-                Punto de Venta
-              </button>
-              <button
-                onClick={() => router.push('/pedidos')}
-                className="bg-white text-purple-600 border border-purple-600 px-4 py-2 rounded-lg font-semibold hover:bg-purple-50 transition-colors"
-              >
-                Pedidos
-              </button>
-              <button
-                onClick={() => router.push('/inventario')}
-                className="bg-white text-purple-600 border border-purple-600 px-4 py-2 rounded-lg font-semibold hover:bg-purple-50 transition-colors"
-              >
-                Inventario
-              </button>
-              <button
-                onClick={() => router.push('/reportes')}
-                className="bg-white text-purple-600 border border-purple-600 px-4 py-2 rounded-lg font-semibold hover:bg-purple-50 transition-colors"
-              >
-                Reportes
-              </button>
-              <button
-                onClick={() => router.push('/historial-ventas')}
-                className="bg-purple-600 text-white px-3 py-2 rounded-lg font-semibold hover:bg-purple-700 transition-colors shadow-md text-sm"
-              >
-                Historial
-              </button>
-              <button
-                onClick={() => router.push('/cierre-caja')}
-                className="bg-white text-purple-600 border border-purple-600 px-4 py-2 rounded-lg font-semibold hover:bg-purple-50 transition-colors"
-              >
-                Cierre de Caja
-              </button>
-            </nav>
-          </div>
-        </div>
-      </header>
-
-      {/* --- NUEVO: Contenedor de Notificación --- */}
+      {/* --- Contenedor de Notificación --- */}
       {notificacion && (
         <div className="fixed top-24 right-6 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-slide-in-out">
           {notificacion}

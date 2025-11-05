@@ -49,46 +49,6 @@ export default function CierreCajaPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50">
-      {/* Header con Navegación (para consistencia) */}
-      <header className="bg-white shadow-lg border-b border-purple-200 print:hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center space-x-4">
-              <div className="bg-gradient-to-r from-purple-600 to-pink-500 p-2 rounded-lg">
-                <span className="text-white font-bold text-xl">🍰</span>
-              </div>
-              <h1 className="text-2xl font-bold text-gray-800">Pepito´s</h1>
-            </div>
-            {/* Menú de Navegación */}
-            <nav className="flex space-x-4">
-              <button
-                onClick={() => router.push('/pos')}
-                className="bg-white text-purple-600 border border-purple-600 px-4 py-2 rounded-lg font-semibold hover:bg-purple-50 transition-colors"
-              >
-                Punto de Venta
-              </button>
-              <button
-                onClick={() => router.push('/inventario')}
-                className="bg-white text-purple-600 border border-purple-600 px-4 py-2 rounded-lg font-semibold hover:bg-purple-50 transition-colors"
-              >
-                Inventario
-              </button>
-              <button
-                onClick={() => router.push('/reportes')}
-                className="bg-white text-purple-600 border border-purple-600 px-4 py-2 rounded-lg font-semibold hover:bg-purple-50 transition-colors"
-              >
-                Reportes
-              </button>
-              <button
-                onClick={() => router.push('/cierre-caja')}
-                className="bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-purple-700 transition-colors shadow-md"
-              >
-                Cierre de Caja
-              </button>
-            </nav>
-          </div>
-        </div>
-      </header>
 
       {/* Contenido de la página */}
       <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

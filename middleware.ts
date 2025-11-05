@@ -26,7 +26,6 @@ export async function middleware(req: NextRequest) {
       '/reportes',
       '/historial-ventas',
       '/admin', 
-      '/api/productos',
       '/api/categorias',
       '/api/reportes',
       '/api/historial-ventas',
