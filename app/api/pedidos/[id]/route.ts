@@ -1,19 +1,19 @@
 // app/api/pedidos/[id]/route.ts
 
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient, Prisma, EstadoPedido } from "@prisma/client";
 
 const prisma = new PrismaClient();
-
 const validEstados = Object.values(EstadoPedido);
 
 export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id, 10);
-    if (isNaN(id)) {
+    const { id } = await params;
+    const numericId = parseInt(id, 10);
+    if (Number.isNaN(numericId)) {
       return NextResponse.json(
         { message: "ID de pedido inválido" },
         { status: 400 }
@@ -21,7 +21,7 @@ export async function GET(
     }
 
     const pedido = await prisma.pedido.findUnique({
-      where: { id },
+      where: { id: numericId },
       include: { cliente: true },
     });
 
@@ -34,7 +34,7 @@ export async function GET(
 
     return NextResponse.json(pedido, { status: 200 });
   } catch (error) {
-    console.error(`Error en GET /api/pedidos/${params.id}:`, error);
+    console.error("Error en GET /api/pedidos/[id]:", error);
     return NextResponse.json(
       { message: "Error al obtener el pedido" },
       { status: 500 }
@@ -43,12 +43,13 @@ export async function GET(
 }
 
 export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id, 10);
-    if (isNaN(id)) {
+    const { id } = await params;
+    const numericId = parseInt(id, 10);
+    if (Number.isNaN(numericId)) {
       return NextResponse.json(
         { message: "ID de pedido inválido" },
         { status: 400 }
@@ -66,7 +67,6 @@ export async function PATCH(
     }
 
     const dataToUpdate: Prisma.PedidoUpdateInput = {};
-
     if (estado) dataToUpdate.estado = estado;
     if (detalles) dataToUpdate.detalles = detalles;
     if (montoTotal !== undefined) dataToUpdate.montoTotal = Number(montoTotal);
@@ -81,13 +81,14 @@ export async function PATCH(
     }
 
     const pedidoActualizado = await prisma.pedido.update({
-      where: { id },
+      where: { id: numericId },
       data: dataToUpdate,
       include: { cliente: true },
     });
 
     return NextResponse.json(pedidoActualizado, { status: 200 });
   } catch (error) {
+    /* ✅ Tipado correcto sin any */
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
       error.code === "P2025"
@@ -97,8 +98,7 @@ export async function PATCH(
         { status: 404 }
       );
     }
-
-    console.error(`Error en PATCH /api/pedidos/${params.id}:`, error);
+    console.error("Error en PATCH /api/pedidos/[id]:", error);
     return NextResponse.json(
       { message: "Error al actualizar el pedido" },
       { status: 500 }

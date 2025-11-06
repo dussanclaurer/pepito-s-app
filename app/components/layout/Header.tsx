@@ -1,38 +1,30 @@
 // app/components/layout/Header.tsx
 
-'use client';
+"use client";
 
-import { useSession, signOut } from 'next-auth/react';
-import { useRouter, usePathname } from 'next/navigation';
-import { Role } from '@prisma/client';
+import { useSession, signOut } from "next-auth/react";
+import { useRouter, usePathname } from "next/navigation";
+import { Role } from "@prisma/client";
+
+type UserWithRole = { role?: Role };
 
 export default function Header() {
   const router = useRouter();
-  const pathname = usePathname(); 
-  const { data: session, status } = useSession(); 
+  const pathname = usePathname();
+  const { data: session, status } = useSession();
 
-  if (pathname === '/login') {
-    return null;
-  }
+  if (pathname === "/login") return null;
+  if (status === "loading")
+    return <header className="bg-white h-[81px] border-b" />;
 
-  if (status === 'loading') {
-    // Puedes poner un skeleton/loader aquí si quieres
-    return <header className="bg-white h-[81px] border-b"></header>;
-  }
+  if (!session) return null;
 
-  if (!session) {
-    return null;
-  }
+  const getButtonClass = (path: string) =>
+    pathname.startsWith(path)
+      ? "bg-purple-600 text-white px-3 py-2 rounded-lg font-semibold hover:bg-purple-700 transition-colors shadow-md text-sm"
+      : "bg-white text-purple-600 border border-purple-600 px-3 py-2 rounded-lg font-semibold hover:bg-purple-50 transition-colors text-sm";
 
-  const getButtonClass = (path: string) => {
-    const isActive = pathname.startsWith(path);
-    if (isActive) {
-      return "bg-purple-600 text-white px-3 py-2 rounded-lg font-semibold hover:bg-purple-700 transition-colors shadow-md text-sm";
-    }
-    return "bg-white text-purple-600 border border-purple-600 px-3 py-2 rounded-lg font-semibold hover:bg-purple-50 transition-colors text-sm";
-  };
-
-  const userRole = (session?.user as any)?.role as Role;
+  const userRole = (session.user as UserWithRole)?.role;
 
   return (
     <header className="bg-white shadow-lg border-b border-purple-200">
@@ -48,71 +40,70 @@ export default function Header() {
 
           {/* Info de Usuario y Navegación */}
           <div className="flex items-center space-x-6">
-            {/* Navegación (Ajustada) */}
+            {/* Navegación */}
             <nav className="flex space-x-2">
               <button
-                onClick={() => router.push('/pos')}
-                className={getButtonClass('/pos')}
+                onClick={() => router.push("/pos")}
+                className={getButtonClass("/pos")}
               >
                 Punto de Venta
               </button>
               <button
-                onClick={() => router.push('/pedidos')}
-                className={getButtonClass('/pedidos')}
+                onClick={() => router.push("/pedidos")}
+                className={getButtonClass("/pedidos")}
               >
                 Pedidos
               </button>
-              
-              {/* --- Botones solo para ADMIN --- */}
+
               {userRole === Role.ADMIN && (
                 <>
                   <button
-                    onClick={() => router.push('/historial-ventas')}
-                    className={getButtonClass('/historial-ventas')}
+                    onClick={() => router.push("/historial-ventas")}
+                    className={getButtonClass("/historial-ventas")}
                   >
                     Historial
                   </button>
                   <button
-                    onClick={() => router.push('/inventario')}
-                    className={getButtonClass('/inventario')}
+                    onClick={() => router.push("/inventario")}
+                    className={getButtonClass("/inventario")}
                   >
                     Inventario
                   </button>
                   <button
-                    onClick={() => router.push('/reportes')}
-                    className={getButtonClass('/reportes')}
+                    onClick={() => router.push("/reportes")}
+                    className={getButtonClass("/reportes")}
                   >
                     Reportes
                   </button>
                   <button
-                    onClick={() => router.push('/admin/usuarios')}
-                    className={getButtonClass('/admin/usuarios')}
+                    onClick={() => router.push("/admin/usuarios")}
+                    className={getButtonClass("/admin/usuarios")}
                   >
                     Usuarios
                   </button>
                 </>
               )}
-              
+
               <button
-                onClick={() => router.push('/cierre-caja')}
-                className={getButtonClass('/cierre-caja')}
+                onClick={() => router.push("/cierre-caja")}
+                className={getButtonClass("/cierre-caja")}
               >
                 Cierre de Caja
               </button>
             </nav>
 
-            {/* Info de Usuario y Cerrar Sesión */}
+            {/* Usuario + Cerrar sesión */}
             <div className="flex items-center space-x-3">
               <div className="text-right">
                 <span className="font-semibold text-gray-700 text-sm">
-                  {session?.user?.name}
+                  {session.user?.name}
                 </span>
                 <span className="block text-xs font-medium bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">
-                  {(session?.user as any)?.role}
+                  {(session.user as UserWithRole)?.role}
                 </span>
               </div>
               <button
-                onClick={() => signOut({ callbackUrl: '/login' })} 
+                onClick={() => signOut({ callbackUrl: "/login" })}
                 className="bg-red-500 text-white px-3 py-2 rounded-lg font-semibold hover:bg-red-600 transition-colors text-sm"
               >
                 Salir

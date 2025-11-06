@@ -1,7 +1,7 @@
 // app/api/historial-ventas/route.ts
 
-import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { NextResponse } from "next/server";
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -13,8 +13,8 @@ const getStartOfDayBOL = (date: Date): Date => {
 const getStartOfWeekBOL = (date: Date): Date => {
   const d = new Date(date);
   d.setUTCHours(-4, 0, 0, 0);
-  const day = d.getUTCDay(); 
-  const diff = d.getUTCDate() - day + (day === 0 ? -6 : 1); 
+  const day = d.getUTCDay();
+  const diff = d.getUTCDate() - day + (day === 0 ? -6 : 1);
   return new Date(d.setUTCDate(diff));
 };
 
@@ -27,23 +27,24 @@ const getStartOfMonthBOL = (date: Date): Date => {
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const periodo = searchParams.get('periodo') || 'dia'; 
+  const periodo = searchParams.get("periodo") || "dia";
 
-  const ahoraBOL = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/La_Paz' }));
+  const ahoraBOL = new Date(
+    new Date().toLocaleString("en-US", { timeZone: "America/La_Paz" })
+  );
 
   let fechaInicio: Date;
-  let fechaFin: Date = new Date(ahoraBOL); 
-  fechaFin.setUTCHours(19, 59, 59, 999); 
+  const fechaFin = new Date(ahoraBOL); 
   fechaFin.setUTCHours(23 - 4, 59, 59, 999); 
 
   switch (periodo) {
-    case 'semana':
+    case "semana":
       fechaInicio = getStartOfWeekBOL(ahoraBOL);
       break;
-    case 'mes':
+    case "mes":
       fechaInicio = getStartOfMonthBOL(ahoraBOL);
       break;
-    case 'dia':
+    case "dia":
     default:
       fechaInicio = getStartOfDayBOL(ahoraBOL);
       break;
@@ -52,28 +53,24 @@ export async function GET(request: Request) {
   try {
     const ventas = await prisma.venta.findMany({
       where: {
-        creadoEn: {
-          gte: fechaInicio,
-          lte: fechaFin,
-        },
+        creadoEn: { gte: fechaInicio, lte: fechaFin },
       },
       include: {
-        productosVendidos: { 
+        productosVendidos: {
           include: {
-            producto: {
-              select: { nombre: true }, 
-            },
+            producto: { select: { nombre: true } },
           },
         },
       },
-      orderBy: {
-        creadoEn: 'desc', 
-      },
+      orderBy: { creadoEn: "desc" },
     });
 
-    return NextResponse.json(ventas as any);
+    return NextResponse.json(ventas); 
   } catch (error) {
     console.error("Error al obtener historial de ventas:", error);
-    return NextResponse.json({ message: "Error al obtener el historial de ventas" }, { status: 500 });
+    return NextResponse.json(
+      { message: "Error al obtener el historial de ventas" },
+      { status: 500 }
+    );
   }
 }

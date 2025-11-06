@@ -1,20 +1,22 @@
 // app/components/pos/PaymentModal.tsx
 
-'use client';
+"use client";
 
-import { useState, useMemo, useEffect } from 'react';
-import { MetodoPago } from '@prisma/client'; // Importamos el tipo
+import { useState, useMemo, useEffect } from "react";
+import { MetodoPago } from "@prisma/client";
+import { VentaData } from "@/app/types";
+
 
 interface PaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
   total: number;
   cartItems: { productoId: number; cantidad: number }[];
-  onVentaExitosa: (ventaData: any) => void;
-  setNotificacion: (msg: string) => void; // Para mostrar notificaciones de error
+  onVentaExitosa: (ventaData: VentaData) => void;
+  setNotificacion: (msg: string) => void;
 }
 
-type EstadoVenta = 'idle' | 'loading' | 'error';
+type EstadoVenta = "idle" | "loading" | "error";
 
 export default function PaymentModal({
   isOpen,
@@ -24,33 +26,34 @@ export default function PaymentModal({
   onVentaExitosa,
   setNotificacion,
 }: PaymentModalProps) {
-  const [metodo, setMetodo] = useState<MetodoPago>('EFECTIVO');
-  const [montoRecibido, setMontoRecibido] = useState('');
-  const [estado, setEstado] = useState<EstadoVenta>('idle');
+  const [metodo, setMetodo] = useState<MetodoPago>("EFECTIVO");
+  const [montoRecibido, setMontoRecibido] = useState("");
+  const [estado, setEstado] = useState<EstadoVenta>("idle");
 
   useEffect(() => {
     if (isOpen) {
-      setMetodo('EFECTIVO');
-      setMontoRecibido('');
-      setEstado('idle');
+      setMetodo("EFECTIVO");
+      setMontoRecibido("");
+      setEstado("idle");
     }
   }, [isOpen]);
 
   const cambio = useMemo(() => {
     const monto = parseFloat(montoRecibido) || 0;
-    if (metodo === 'EFECTIVO' && monto > 0) {
+    if (metodo === "EFECTIVO" && monto > 0) {
       return monto - total;
     }
     return 0;
   }, [montoRecibido, total, metodo]);
 
   const puedeConfirmar =
-    metodo === 'QR' || (metodo === 'EFECTIVO' && cambio >= 0 && montoRecibido !== '');
+    metodo === "QR" ||
+    (metodo === "EFECTIVO" && cambio >= 0 && montoRecibido !== "");
 
   const handleConfirmarPago = async () => {
-    setEstado('loading');
+    setEstado("loading");
 
-    const montoFinal = metodo === 'QR' ? total : parseFloat(montoRecibido);
+    const montoFinal = metodo === "QR" ? total : parseFloat(montoRecibido);
 
     try {
       const body = {
@@ -61,28 +64,28 @@ export default function PaymentModal({
         },
       };
 
-      const response = await fetch('/api/ventas', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/ventas", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
 
       if (response.ok) {
         const data = await response.json();
-        onVentaExitosa(data); 
-        onClose(); 
+        onVentaExitosa(data);
+        onClose();
       } else {
         const errorData = await response.json();
         setNotificacion(`Error: ${errorData.message}`);
-        setEstado('error');
+        setEstado("error");
       }
     } catch (error) {
       console.error(error);
-      setNotificacion('Error de conexión al procesar el pago.');
-      setEstado('error');
+      setNotificacion("Error de conexión al procesar el pago.");
+      setEstado("error");
     } finally {
-      if (estado !== 'error') {
-        setEstado('idle');
+      if (estado !== "error") {
+        setEstado("idle");
       }
     }
   };
@@ -97,7 +100,7 @@ export default function PaymentModal({
       {/* Contenido del Modal */}
       <div
         className="bg-white rounded-2xl shadow-xl w-full max-w-md"
-        onClick={e => e.stopPropagation()} 
+        onClick={(e) => e.stopPropagation()}
       >
         <div className="p-6 border-b border-gray-200">
           <h2 className="text-2xl font-bold text-gray-800">Procesar Pago</h2>
@@ -115,29 +118,29 @@ export default function PaymentModal({
           {/* Selector de Método de Pago */}
           <div className="grid grid-cols-2 gap-4">
             <button
-              onClick={() => setMetodo('EFECTIVO')}
+              onClick={() => setMetodo("EFECTIVO")}
               className={`py-4 rounded-xl text-lg font-semibold transition-all ${
-                metodo === 'EFECTIVO'
-                  ? 'bg-purple-600 text-white shadow-lg'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                metodo === "EFECTIVO"
+                  ? "bg-purple-600 text-white shadow-lg"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
               💵 Efectivo
             </button>
             <button
-              onClick={() => setMetodo('QR')}
+              onClick={() => setMetodo("QR")}
               className={`py-4 rounded-xl text-lg font-semibold transition-all ${
-                metodo === 'QR'
-                  ? 'bg-purple-600 text-white shadow-lg'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                metodo === "QR"
+                  ? "bg-purple-600 text-white shadow-lg"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
-               QR
+              QR
             </button>
           </div>
 
           {/* Input de Monto (Solo para Efectivo) */}
-          {metodo === 'EFECTIVO' && (
+          {metodo === "EFECTIVO" && (
             <div className="space-y-4 animate-fade-in">
               <div>
                 <label
@@ -150,7 +153,7 @@ export default function PaymentModal({
                   type="number"
                   id="montoRecibido"
                   value={montoRecibido}
-                  onChange={e => setMontoRecibido(e.target.value)}
+                  onChange={(e) => setMontoRecibido(e.target.value)}
                   placeholder="Ej: 100"
                   className="w-full text-center text-2xl p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                 />
@@ -185,13 +188,13 @@ export default function PaymentModal({
           </button>
           <button
             onClick={handleConfirmarPago}
-            disabled={!puedeConfirmar || estado === 'loading'}
+            disabled={!puedeConfirmar || estado === "loading"}
             className="py-3 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 transition-all disabled:from-gray-400 disabled:cursor-not-allowed shadow-lg disabled:shadow-none"
           >
-            {estado === 'loading' ? (
+            {estado === "loading" ? (
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mx-auto"></div>
             ) : (
-              'Confirmar Pago'
+              "Confirmar Pago"
             )}
           </button>
         </div>

@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
     const periodo = searchParams.get('periodo') || 'dia'; 
     const umbralInventario = parseInt(searchParams.get('umbral') || '5');
 
-    let fechaInicio = new Date();
+    const fechaInicio = new Date();
     fechaInicio.setHours(0, 0, 0, 0);
 
     if (periodo === 'semana') {

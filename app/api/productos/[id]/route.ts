@@ -6,49 +6,65 @@ import { getToken } from 'next-auth/jwt';
 import { Role } from '@prisma/client';
 
 async function isAdmin(req: Request | NextRequest) {
-  const token = await getToken({ req: req as unknown as NextRequest, secret: process.env.NEXTAUTH_SECRET });
-  return token && token.role === Role.ADMIN;
+  const token = await getToken({
+    req: req as unknown as NextRequest,
+    secret: process.env.NEXTAUTH_SECRET,
+  });
+  return token?.role === Role.ADMIN;
 }
 
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }   
+) {
   if (!(await isAdmin(request))) {
     return NextResponse.json({ message: 'Acceso Denegado' }, { status: 403 });
   }
-  
+
   try {
-    const id = parseInt(params.id);
+    const { id } = await params;                   
+    const productoId = parseInt(id, 10);
+    if (Number.isNaN(productoId))
+      return NextResponse.json({ message: 'ID inválido' }, { status: 400 });
+
     const body = await request.json();
     const { nombre, precio, inventario, categoriaId } = body;
 
-    const productoActualizado = await prisma.producto.update({
-      where: { id },
+    const actualizado = await prisma.producto.update({
+      where: { id: productoId },
       data: {
         nombre,
         precio: parseFloat(precio),
-        inventario: parseInt(inventario),
-        categoriaId: parseInt(categoriaId),
+        inventario: parseInt(inventario, 10),
+        categoriaId: parseInt(categoriaId, 10),
       },
     });
-    return NextResponse.json(productoActualizado);
-  } catch (error) {
-    console.error(`Error al actualizar producto ${params.id}:`, error);
-    return NextResponse.json({ message: "Error al actualizar producto" }, { status: 500 });
+
+    return NextResponse.json(actualizado);
+  } catch (e) {
+    console.error('Error actualizando producto:', e);
+    return NextResponse.json({ message: 'Error al actualizar producto' }, { status: 500 });
   }
 }
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }   
+) {
   if (!(await isAdmin(request))) {
-    return NextResponse.json({ message: 'Acceso Denado' }, { status: 403 });
+    return NextResponse.json({ message: 'Acceso Denegado' }, { status: 403 });
   }
 
   try {
-    const id = parseInt(params.id);
-    await prisma.producto.delete({
-      where: { id },
-    });
-    return NextResponse.json({ message: "Producto eliminado" }, { status: 200 });
-  } catch (error) {
-    console.error(`Error al eliminar producto ${params.id}:`, error);
-    return NextResponse.json({ message: "Error al eliminar producto" }, { status: 500 });
+    const { id } = await params;                   
+    const productoId = parseInt(id, 10);
+    if (Number.isNaN(productoId))
+      return NextResponse.json({ message: 'ID inválido' }, { status: 400 });
+
+    await prisma.producto.delete({ where: { id: productoId } });
+    return NextResponse.json({ message: 'Producto eliminado' });
+  } catch (e) {
+    console.error('Error eliminando producto:', e);
+    return NextResponse.json({ message: 'Error al eliminar producto' }, { status: 500 });
   }
 }
