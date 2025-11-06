@@ -63,7 +63,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { message: "El email ya está en uso" },
         { status: 409 }
-      ); // 409 Conflict
+      ); 
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
