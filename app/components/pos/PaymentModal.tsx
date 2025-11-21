@@ -110,7 +110,7 @@ export default function PaymentModal({
           {/* Total a Pagar */}
           <div className="text-center">
             <p className="text-lg text-gray-600">Total a Pagar:</p>
-            <p className="text-5xl font-extrabold text-purple-600">
+            <p className="text-5xl font-extrabold text-blue-600">
               Bs. {total.toFixed(2)}
             </p>
           </div>
@@ -121,7 +121,7 @@ export default function PaymentModal({
               onClick={() => setMetodo("EFECTIVO")}
               className={`py-4 rounded-xl text-lg font-semibold transition-all ${
                 metodo === "EFECTIVO"
-                  ? "bg-purple-600 text-white shadow-lg"
+                  ? "bg-blue-600 text-white shadow-lg"
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
@@ -131,7 +131,7 @@ export default function PaymentModal({
               onClick={() => setMetodo("QR")}
               className={`py-4 rounded-xl text-lg font-semibold transition-all ${
                 metodo === "QR"
-                  ? "bg-purple-600 text-white shadow-lg"
+                  ? "bg-blue-600 text-white shadow-lg"
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
@@ -155,7 +155,7 @@ export default function PaymentModal({
                   value={montoRecibido}
                   onChange={(e) => setMontoRecibido(e.target.value)}
                   placeholder="Ej: 100"
-                  className="w-full text-center text-2xl p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                  className="w-full text-center text-2xl p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 />
               </div>
 
@@ -202,3 +202,4 @@ export default function PaymentModal({
     </div>
   );
 }
+

@@ -1,7 +1,7 @@
 // app/api/reportes/cierre-caja/route.ts
 
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { MetodoPago, PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -23,7 +23,7 @@ export async function GET(request: Request) {
     const inicioDelDia = new Date(`${fechaHoy}T00:00:00.000-04:00`); 
     const finDelDia = new Date(`${fechaHoy}T23:59:59.999-04:00`);
 
-    const totalesPorMetodo = await prisma.venta.groupBy({
+    const totalesVentasPorMetodo = await prisma.venta.groupBy({
       by: ['metodoPago'],
       where: {
         creadoEn: {
@@ -34,39 +34,55 @@ export async function GET(request: Request) {
       _sum: {
         total: true, 
       },
-      orderBy: {
-        metodoPago: 'asc',
-      },
     });
 
-    const totalGeneral = await prisma.venta.aggregate({
+    const anticiposPorMetodo = await prisma.pedido.groupBy({
+      by: ['metodoPagoAnticipo'],
       where: {
         creadoEn: {
           gte: inicioDelDia,
           lte: finDelDia,
         },
+        anticipo: {
+          gt: 0,
+        },
       },
       _sum: {
-        total: true,
+        anticipo: true,
       },
     });
 
-    const reporteFormateado = totalesPorMetodo.map(item => ({
-      metodoPago: item.metodoPago,
-      total: item._sum.total || 0,
-    }));
+    const reporteFinal = new Map<MetodoPago, number>();
+    reporteFinal.set(MetodoPago.EFECTIVO, 0);
+    reporteFinal.set(MetodoPago.QR, 0);
 
-    if (!reporteFormateado.find(r => r.metodoPago === 'EFECTIVO')) {
-      reporteFormateado.push({ metodoPago: 'EFECTIVO', total: 0 });
-    }
-    if (!reporteFormateado.find(r => r.metodoPago === 'QR')) {
-      reporteFormateado.push({ metodoPago: 'QR', total: 0 });
+    for (const item of totalesVentasPorMetodo) {
+      reporteFinal.set(item.metodoPago, (reporteFinal.get(item.metodoPago) || 0) + (item._sum.total || 0));
     }
     
+    for (const item of anticiposPorMetodo) {
+      const metodo = item.metodoPagoAnticipo;
+      const totalAnticipo = item._sum.anticipo || 0;
+      reporteFinal.set(metodo, (reporteFinal.get(metodo) || 0) + totalAnticipo);
+    }
+    
+    const reporteFormateado = Array.from(reporteFinal.entries()).map(([metodoPago, total]) => ({
+      metodoPago,
+      total,
+    })).sort((a, b) => a.metodoPago.localeCompare(b.metodoPago));
+
+    const totalGeneralVentas = totalesVentasPorMetodo.reduce((acc, item) => acc + (item._sum.total || 0), 0);
+    const totalAnticipos = anticiposPorMetodo.reduce((acc, item) => acc + (item._sum.anticipo || 0), 0);
+    const totalGeneral = totalGeneralVentas + totalAnticipos;
+    
     const respuesta = {
-      totalesPorMetodo: reporteFormateado.sort((a, b) => a.metodoPago.localeCompare(b.metodoPago)),
-      totalGeneral: totalGeneral._sum.total || 0,
+      totalesPorMetodo: reporteFormateado,
+      totalGeneral: totalGeneral,
       fechaReporte: fechaHoy.split('-').reverse().join('/'), 
+      desglose: {
+        totalVentas: totalGeneralVentas,
+        totalAnticipos: totalAnticipos,
+      }
     };
 
     return NextResponse.json(respuesta, { status: 200 });

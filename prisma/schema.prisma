@@ -94,7 +94,8 @@ model Pedido {
   detalles      String       @db.Text 
   fechaEntrega  DateTime     
   montoTotal    Float
-  anticipo      Float        @default(0) 
+  anticipo      Float        @default(0)
+  metodoPagoAnticipo MetodoPago @default(EFECTIVO)
   estado        EstadoPedido @default(PENDIENTE) 
   creadoEn      DateTime     @default(now())
   actualizadoEn DateTime     @updatedAt

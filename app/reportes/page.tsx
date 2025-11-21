@@ -49,9 +49,9 @@ const StatCard = ({ title, value, colorClass, icon }: { title: string; value: st
 );
 
 const RankingTable = ({ title, data, valueKey, valuePrefix = '', icon }: { title: string, data: RankingProducto[], valueKey: 'cantidadVendida' | 'ingresoGenerado', valuePrefix?: string, icon: string }) => (
-  <div className="bg-white p-6 rounded-2xl shadow-xl border border-purple-100 h-full">
+  <div className="bg-white p-6 rounded-2xl shadow-xl border border-blue-100 h-full">
     <div className="flex items-center gap-3 mb-6">
-      <div className="bg-gradient-to-r from-purple-500 to-pink-500 p-2 rounded-lg">
+      <div className="bg-gradient-to-r from-blue-500 to-red-500 p-2 rounded-lg">
         <span className="text-white font-bold text-lg">{icon}</span>
       </div>
       <h3 className="text-xl font-bold text-gray-800">{title}</h3>
@@ -60,19 +60,19 @@ const RankingTable = ({ title, data, valueKey, valuePrefix = '', icon }: { title
       {data.slice(0, 5).map((item, index) => (
         <div 
           key={item.productoId} 
-          className="flex justify-between items-center p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-100 hover:border-purple-300 transition-colors"
+          className="flex justify-between items-center p-3 bg-gradient-to-r from-blue-50 to-red-50 rounded-xl border border-blue-100 hover:border-blue-300 transition-colors"
         >
           <div className="flex items-center gap-3">
             <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm ${
               index === 0 ? 'bg-yellow-500' : 
               index === 1 ? 'bg-gray-400' : 
-              index === 2 ? 'bg-orange-600' : 'bg-purple-400'
+              index === 2 ? 'bg-orange-600' : 'bg-blue-400'
             }`}>
               {index + 1}
             </div>
             <span className="font-medium text-gray-800">{item.nombre}</span>
           </div>
-          <span className="font-bold text-purple-600">
+          <span className="font-bold text-blue-600">
             {valuePrefix}{valueKey === 'ingresoGenerado' ? item[valueKey].toFixed(2) : item[valueKey]}
           </span>
         </div>
@@ -126,7 +126,7 @@ export default function ReportesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-red-50">
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Header del Dashboard */}
@@ -139,7 +139,7 @@ export default function ReportesPage() {
           </div>
           
           {/* Selector de Período */}
-          <div className="bg-white p-1 rounded-xl shadow-lg border border-purple-100">
+          <div className="bg-white p-1 rounded-xl shadow-lg border border-blue-100">
             <div className="flex gap-1">
               {[
                 { key: 'dia', label: 'Hoy', icon: '📅' },
@@ -151,8 +151,8 @@ export default function ReportesPage() {
                   onClick={() => setPeriodo(item.key)}
                   className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 flex items-center gap-2 ${
                     periodo === item.key 
-                      ? 'bg-gradient-to-r from-purple-600 to-pink-500 text-white shadow-lg' 
-                      : 'text-gray-600 hover:text-purple-600'
+                      ? 'bg-gradient-to-r from-blue-600 to-red-500 text-white shadow-lg' 
+                      : 'text-gray-600 hover:text-blue-600'
                   }`}
                 >
                   <span>{item.icon}</span>
@@ -166,7 +166,7 @@ export default function ReportesPage() {
         {cargando ? (
           <div className="flex justify-center items-center py-20">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-600 mx-auto mb-4"></div>
+              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
               <p className="text-gray-600 text-lg">Cargando reportes...</p>
             </div>
           </div>
@@ -189,7 +189,7 @@ export default function ReportesPage() {
               <StatCard 
                 title={`Período`}
                 value={reporte.ventasPorPeriodo.periodo}
-                colorClass="bg-gradient-to-r from-purple-500 to-pink-500"
+                colorClass="bg-gradient-to-r from-blue-500 to-red-500"
                 icon="⏱️"
               />
             </div>
@@ -245,7 +245,7 @@ export default function ReportesPage() {
             </div>
 
             {/* Información Adicional */}
-            <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl p-6 text-white">
+            <div className="bg-gradient-to-r from-blue-500 to-red-500 rounded-2xl p-6 text-white">
               <div className="flex items-center gap-3 mb-2">
                 <span className="text-2xl">💡</span>
                 <h3 className="text-xl font-bold">Información del Período</h3>
@@ -263,7 +263,7 @@ export default function ReportesPage() {
             <p className="text-gray-600 mb-4">Hubo un problema al cargar los reportes. Por favor, intenta nuevamente.</p>
             <button
               onClick={() => window.location.reload()}
-              className="bg-gradient-to-r from-purple-600 to-pink-500 text-white font-semibold py-3 px-6 rounded-xl hover:from-purple-700 hover:to-pink-600 transition-all duration-300"
+              className="bg-gradient-to-r from-blue-600 to-red-500 text-white font-semibold py-3 px-6 rounded-xl hover:from-blue-700 hover:to-red-600 transition-all duration-300"
             >
               Reintentar
             </button>

@@ -91,13 +91,13 @@ export default function AdminUsuariosPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-red-50">
       {/* --- Contenido Principal --- */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Columna 1: Formulario para crear usuario */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-2xl shadow-xl p-6 border border-purple-100">
+            <div className="bg-white rounded-2xl shadow-xl p-6 border border-blue-100">
               <h2 className="text-2xl font-bold text-gray-800 mb-6">
                 Crear Nuevo Usuario
               </h2>
@@ -125,7 +125,7 @@ export default function AdminUsuariosPage() {
                     value={formData.name}
                     onChange={handleFormChange}
                     required
-                    className="w-full px-4 py-3 border border-gray-400 rounded-xl focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-4 py-3 border border-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
                 <div>
@@ -138,7 +138,7 @@ export default function AdminUsuariosPage() {
                     value={formData.email}
                     onChange={handleFormChange}
                     required
-                    className="w-full px-4 py-3 border border-gray-400 rounded-xl focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-4 py-3 border border-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
                 <div>
@@ -151,7 +151,7 @@ export default function AdminUsuariosPage() {
                     value={formData.password}
                     onChange={handleFormChange}
                     required
-                    className="w-full px-4 py-3 border border-gray-400 rounded-xl focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-4 py-3 border border-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
                 <div>
@@ -163,7 +163,7 @@ export default function AdminUsuariosPage() {
                     value={formData.role}
                     onChange={handleFormChange}
                     required
-                    className="w-full px-4 py-3 border border-gray-400 rounded-xl focus:ring-2 focus:ring-purple-500 bg-white"
+                    className="w-full px-4 py-3 border border-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white"
                   >
                     <option value={Role.CAJERO}>Cajero</option>
                     <option value={Role.ADMIN}>Administrador</option>
@@ -172,7 +172,7 @@ export default function AdminUsuariosPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full bg-gradient-to-r from-purple-600 to-pink-500 text-white font-bold py-3 rounded-xl hover:from-purple-700 hover:to-pink-600 transition-all disabled:from-gray-400"
+                  className="w-full bg-gradient-to-r from-blue-600 to-red-500 text-white font-bold py-3 rounded-xl hover:from-blue-700 hover:to-red-600 transition-all disabled:from-gray-400"
                 >
                   {isSubmitting ? "Creando..." : "Crear Usuario"}
                 </button>
@@ -182,7 +182,7 @@ export default function AdminUsuariosPage() {
 
           {/* Columna 2: Lista de usuarios */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-2xl shadow-xl p-6 border border-purple-100">
+            <div className="bg-white rounded-2xl shadow-xl p-6 border border-blue-100">
               <h2 className="text-2xl font-bold text-gray-800 mb-6">
                 Usuarios Existentes
               </h2>
@@ -190,22 +190,22 @@ export default function AdminUsuariosPage() {
               <div className="max-h-[70vh] overflow-y-auto">
                 {loading ? (
                   <div className="flex justify-center items-center py-12">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
                   </div>
                 ) : (
-                  <table className="min-w-full divide-y divide-purple-200">
-                    <thead className="bg-purple-50">
+                  <table className="min-w-full divide-y divide-blue-200">
+                    <thead className="bg-blue-50">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-bold text-purple-800 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-bold text-blue-800 uppercase tracking-wider">
                           Nombre
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-bold text-purple-800 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-bold text-blue-800 uppercase tracking-wider">
                           Email
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-bold text-purple-800 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-bold text-blue-800 uppercase tracking-wider">
                           Rol
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-bold text-purple-800 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-bold text-blue-800 uppercase tracking-wider">
                           Registrado
                         </th>
                       </tr>
@@ -214,7 +214,7 @@ export default function AdminUsuariosPage() {
                       {users.map((user) => (
                         <tr
                           key={user.id}
-                          className="hover:bg-purple-50 transition-colors"
+                          className="hover:bg-blue-50 transition-colors"
                         >
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
                             {user.name}
@@ -226,7 +226,7 @@ export default function AdminUsuariosPage() {
                             <span
                               className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
                                 user.role === Role.ADMIN
-                                  ? "bg-purple-100 text-purple-800"
+                                  ? "bg-blue-100 text-blue-800"
                                   : "bg-green-100 text-green-800"
                               }`}
                             >
@@ -251,3 +251,4 @@ export default function AdminUsuariosPage() {
     </div>
   );
 }
+

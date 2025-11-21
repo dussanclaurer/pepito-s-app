@@ -45,30 +45,30 @@ export default function HistorialVentasPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-red-50">
 
       {/* --- Contenido Principal --- */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="bg-white rounded-2xl shadow-xl p-6 border border-purple-100">
+        <div className="bg-white rounded-2xl shadow-xl p-6 border border-blue-100">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold text-gray-800">Historial de Ventas</h2>
             {/* --- Botones de Filtro --- */}
-            <div className="flex space-x-2 bg-purple-50 p-1 rounded-lg">
+            <div className="flex space-x-2 bg-blue-50 p-1 rounded-lg">
               <button
                 onClick={() => cargarHistorial('dia')}
-                className={`px-4 py-2 rounded-md font-semibold ${periodoActivo === 'dia' ? 'bg-purple-600 text-white shadow-md' : 'text-purple-700 hover:bg-purple-100'}`}
+                className={`px-4 py-2 rounded-md font-semibold ${periodoActivo === 'dia' ? 'bg-blue-600 text-white shadow-md' : 'text-blue-700 hover:bg-blue-100'}`}
               >
                 Hoy
               </button>
               <button
                 onClick={() => cargarHistorial('semana')}
-                className={`px-4 py-2 rounded-md font-semibold ${periodoActivo === 'semana' ? 'bg-purple-600 text-white shadow-md' : 'text-purple-700 hover:bg-purple-100'}`}
+                className={`px-4 py-2 rounded-md font-semibold ${periodoActivo === 'semana' ? 'bg-blue-600 text-white shadow-md' : 'text-blue-700 hover:bg-blue-100'}`}
               >
                 Semana
               </button>
               <button
                 onClick={() => cargarHistorial('mes')}
-                className={`px-4 py-2 rounded-md font-semibold ${periodoActivo === 'mes' ? 'bg-purple-600 text-white shadow-md' : 'text-purple-700 hover:bg-purple-100'}`}
+                className={`px-4 py-2 rounded-md font-semibold ${periodoActivo === 'mes' ? 'bg-blue-600 text-white shadow-md' : 'text-blue-700 hover:bg-blue-100'}`}
               >
                 Mes
               </button>
@@ -78,7 +78,7 @@ export default function HistorialVentasPage() {
           {/* --- Lista de Ventas --- */}
           {cargando ? (
             <div className="flex justify-center items-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
             </div>
           ) : ventas.length === 0 ? (
             <div className="text-center py-12">
@@ -91,14 +91,14 @@ export default function HistorialVentasPage() {
           ) : (
             <div className="space-y-4 max-h-[75vh] overflow-y-auto pr-2">
               {ventas.map(venta => (
-                <div key={venta.id} className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-100 shadow-md">
+                <div key={venta.id} className="bg-gradient-to-r from-blue-50 to-red-50 rounded-xl p-4 border border-blue-100 shadow-md">
                   {/* Resumen de la Venta */}
                   <div 
                     className="flex justify-between items-center cursor-pointer" 
                     onClick={() => setVentaSeleccionada(ventaSeleccionada?.id === venta.id ? null : venta)}
                   >
                     <div>
-                      <span className="text-sm font-semibold text-purple-700">
+                      <span className="text-sm font-semibold text-blue-700">
                         ID: #{venta.id.toString().padStart(6, '0')}
                       </span>
                       <p className="text-lg font-bold text-gray-800">
@@ -119,7 +119,7 @@ export default function HistorialVentasPage() {
 
                   {/* Detalles (Expandible) */}
                   {ventaSeleccionada?.id === venta.id && (
-                    <div className="mt-4 pt-4 border-t border-purple-200 animate-fade-in">
+                    <div className="mt-4 pt-4 border-t border-blue-200 animate-fade-in">
                       <h4 className="font-semibold text-gray-700 mb-2">Detalles de la Venta:</h4>
                       <ul className="space-y-1 text-sm list-disc list-inside bg-white p-3 rounded-md border">
                         {venta.productosVendidos.map(item => (

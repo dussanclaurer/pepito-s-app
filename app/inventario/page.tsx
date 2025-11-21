@@ -151,16 +151,16 @@ export default function InventarioPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-red-50">
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Columna de Formularios */}
           <div className="lg:col-span-1 space-y-6">
             {/* Formulario de Categorías */}
-            <div className="bg-white rounded-2xl shadow-xl p-6 border border-purple-100">
+            <div className="bg-white rounded-2xl shadow-xl p-6 border border-blue-100">
               <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                <span className="bg-purple-100 text-purple-600 p-2 rounded-lg">🏷️</span>
+                <span className="bg-blue-100 text-blue-600 p-2 rounded-lg">🏷️</span>
                 Nueva Categoría
               </h2>
               <form onSubmit={handleCategoriaSubmit} className="space-y-4">
@@ -170,12 +170,12 @@ export default function InventarioPage() {
                     value={nombreNuevaCategoria}
                     onChange={(e) => setNombreNuevaCategoria(e.target.value)}
                     placeholder="Nombre de la categoría"
-                    className="w-full pl-4 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                    className="w-full pl-4 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                   />
                 </div>
                 <button 
                   type="submit" 
-                  className="w-full bg-gradient-to-r from-purple-600 to-pink-500 text-white font-bold py-3 rounded-xl hover:from-purple-700 hover:to-pink-600 transition-all duration-300 shadow-lg hover:shadow-xl"
+                  className="w-full bg-gradient-to-r from-blue-600 to-red-500 text-white font-bold py-3 rounded-xl hover:from-blue-700 hover:to-red-600 transition-all duration-300 shadow-lg hover:shadow-xl"
                   disabled={!nombreNuevaCategoria.trim()}
                 >
                   Guardar Categoría
@@ -184,7 +184,7 @@ export default function InventarioPage() {
             </div>
 
             {/* Formulario de Productos */}
-            <div className="bg-white rounded-2xl shadow-xl p-6 border border-purple-100">
+            <div className="bg-white rounded-2xl shadow-xl p-6 border border-blue-100">
               <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
                 <span className="bg-green-100 text-green-600 p-2 rounded-lg">🍰</span>
                 Nuevo Producto
@@ -196,7 +196,7 @@ export default function InventarioPage() {
                   onChange={handleInputChange} 
                   type="text" 
                   placeholder="Nombre del producto" 
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 />
                 <input 
                   name="precio" 
@@ -205,7 +205,7 @@ export default function InventarioPage() {
                   type="number" 
                   step="0.01"
                   placeholder="Precio (Bs.)" 
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 />
                 <input 
                   name="inventario" 
@@ -213,13 +213,13 @@ export default function InventarioPage() {
                   onChange={handleInputChange} 
                   type="number" 
                   placeholder="Inventario inicial" 
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 />
                 <select 
                   name="categoriaId" 
                   value={nuevoProducto.categoriaId} 
                   onChange={handleInputChange} 
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 >
                   <option value="" disabled>Selecciona una categoría</option>
                   {categorias.map(cat => (
@@ -239,7 +239,7 @@ export default function InventarioPage() {
 
           {/* Tabla de Productos */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-2xl shadow-xl p-6 border border-purple-100">
+            <div className="bg-white rounded-2xl shadow-xl p-6 border border-blue-100">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
                   <span className="bg-blue-100 text-blue-600 p-2 rounded-lg">📋</span>
@@ -252,13 +252,13 @@ export default function InventarioPage() {
 
               {cargando ? (
                 <div className="flex justify-center items-center py-12">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
                 </div>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
-                      <tr className="bg-gradient-to-r from-purple-50 to-pink-50 border-b border-purple-200">
+                      <tr className="bg-gradient-to-r from-blue-50 to-red-50 border-b border-blue-200">
                         <th className="p-4 font-semibold text-gray-700 text-left rounded-l-xl">Producto</th>
                         <th className="p-4 font-semibold text-gray-700 text-left">Categoría</th>
                         <th className="p-4 font-semibold text-gray-700 text-left">Precio</th>
@@ -270,7 +270,7 @@ export default function InventarioPage() {
                       {productos.map((producto, index) => (
                         <tr 
                           key={producto.id} 
-                          className={`border-b border-gray-100 hover:bg-purple-50 transition-colors ${
+                          className={`border-b border-gray-100 hover:bg-blue-50 transition-colors ${
                             index === productos.length - 1 ? 'border-b-0' : ''
                           }`}
                         >
@@ -278,7 +278,7 @@ export default function InventarioPage() {
                             <div className="font-semibold text-gray-800">{producto.nombre}</div>
                           </td>
                           <td className="p-4">
-                            <span className="bg-purple-100 text-purple-800 text-sm font-medium px-3 py-1 rounded-full">
+                            <span className="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">
                               {producto.categoria.nombre}
                             </span>
                           </td>
@@ -343,7 +343,7 @@ export default function InventarioPage() {
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md transform transition-all">
             <div className="p-6 border-b border-gray-200">
               <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-                <span className="bg-purple-100 text-purple-600 p-2 rounded-lg">✏️</span>
+                <span className="bg-blue-100 text-blue-600 p-2 rounded-lg">✏️</span>
                 Editar Producto
               </h2>
             </div>
@@ -356,7 +356,7 @@ export default function InventarioPage() {
                   value={productoAEditar.nombre} 
                   onChange={handleInputChange} 
                   type="text" 
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 />
               </div>
               
@@ -368,7 +368,7 @@ export default function InventarioPage() {
                   onChange={handleInputChange} 
                   type="number" 
                   step="0.01"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 />
               </div>
               
@@ -379,7 +379,7 @@ export default function InventarioPage() {
                   value={productoAEditar.inventario} 
                   onChange={handleInputChange} 
                   type="number" 
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 />
               </div>
               
@@ -389,7 +389,7 @@ export default function InventarioPage() {
                   name="categoriaId" 
                   value={productoAEditar.categoriaId} 
                   onChange={handleInputChange} 
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 >
                   {categorias.map(cat => (
                     <option key={cat.id} value={cat.id}>{cat.nombre}</option>
@@ -407,7 +407,7 @@ export default function InventarioPage() {
                 </button>
                 <button 
                   type="submit" 
-                  className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-semibold rounded-xl hover:from-purple-700 hover:to-pink-600 transition-all duration-300 shadow-lg"
+                  className="px-6 py-3 bg-gradient-to-r from-blue-600 to-red-500 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-red-600 transition-all duration-300 shadow-lg"
                 >
                   Guardar Cambios
                 </button>

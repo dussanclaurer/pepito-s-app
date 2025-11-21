@@ -12,6 +12,10 @@ interface ReporteCierre {
   }[];
   totalGeneral: number;
   fechaReporte: string;
+  desglose: {
+    totalVentas: number;
+    totalAnticipos: number;
+  };
 }
 
 export default function CierreCajaPage() {
@@ -48,13 +52,13 @@ export default function CierreCajaPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-red-50">
 
       {/* Contenido de la página */}
       <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         
         {/* --- CONTROLES (NO SE IMPRIMEN) --- */}
-        <div className="bg-white rounded-2xl shadow-xl p-6 border border-purple-100 mb-8 print:hidden">
+        <div className="bg-white rounded-2xl shadow-xl p-6 border border-blue-100 mb-8 print:hidden">
           <h2 className="text-3xl font-bold text-gray-800 mb-4">Cierre de Caja Diario</h2>
           <p className="text-gray-600 mb-6">
             Presiona el botón para generar el reporte de ventas del día de hoy.
@@ -63,7 +67,7 @@ export default function CierreCajaPage() {
           <button
             onClick={generarReporte}
             disabled={cargando}
-            className="w-full bg-gradient-to-r from-purple-600 to-pink-500 text-white font-bold py-4 rounded-xl hover:from-purple-700 hover:to-pink-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-wait"
+            className="w-full bg-gradient-to-r from-blue-600 to-red-500 text-white font-bold py-4 rounded-xl hover:from-blue-700 hover:to-red-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-wait"
           >
             {cargando ? 'Generando...' : 'Generar Cierre de Hoy'}
           </button>
@@ -79,7 +83,7 @@ export default function CierreCajaPage() {
         {/* --- REPORTE (SÍ SE IMPRIME) --- */}
         {/* Usamos las mismas clases 'printable-area' que definimos en globals.css */}
         {reporte && (
-          <div className="printable-area bg-white rounded-2xl shadow-xl p-8 border border-purple-100 print:shadow-none print:border-none print:p-2">
+          <div className="printable-area bg-white rounded-2xl shadow-xl p-8 border border-blue-100 print:shadow-none print:border-none print:p-2">
             
             <div className="text-center mb-6">
               <h2 className="text-2xl font-bold text-gray-900 print:text-black">Reporte de Cierre de Caja</h2>
@@ -98,20 +102,36 @@ export default function CierreCajaPage() {
                   <span className="text-lg font-medium text-gray-600 print:text-black">
                     Total en {item.metodoPago === 'EFECTIVO' ? 'Efectivo' : 'QR'}:
                   </span>
-                  <span className="text-2xl font-bold text-purple-600 print:text-black">
+                  <span className="text-2xl font-bold text-blue-600 print:text-black">
                     Bs. {item.total.toFixed(2)}
                   </span>
                 </div>
               ))}
             </div>
 
+            {/* Desglose de Totales */}
+            {reporte.desglose && (
+              <div className="border-t-2 border-dashed border-gray-300 pt-6 mb-6">
+                <div className="space-y-3 text-gray-700 print:text-black">
+                  <div className="flex justify-between">
+                    <span>Total Ventas Regulares:</span>
+                    <span className="font-medium">Bs. {reporte.desglose.totalVentas.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Total Anticipos (Pedidos):</span>
+                    <span className="font-medium">Bs. {reporte.desglose.totalAnticipos.toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Total General */}
             <div className="border-t-2 border-dashed border-gray-300 pt-6">
-              <div className="flex justify-between items-center bg-purple-50 p-6 rounded-lg border border-purple-200 print:border-t-2 print:border-black print:rounded-none print:p-2 print:bg-white">
+              <div className="flex justify-between items-center bg-blue-50 p-6 rounded-lg border border-blue-200 print:border-t-2 print:border-black print:rounded-none print:p-2 print:bg-white">
                 <span className="text-xl font-bold text-gray-800 print:text-black">
                   Total General Vendido:
                 </span>
-                <span className="text-3xl font-extrabold text-purple-700 print:text-black">
+                <span className="text-3xl font-extrabold text-blue-700 print:text-black">
                   Bs. {reporte.totalGeneral.toFixed(2)}
                 </span>
               </div>
@@ -134,3 +154,4 @@ export default function CierreCajaPage() {
     </div>
   );
 }
+

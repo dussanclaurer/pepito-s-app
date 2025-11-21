@@ -131,7 +131,7 @@ export default function POSPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-red-50">
 
       {/* --- Contenedor de Notificación --- */}
       {notificacion && (
@@ -144,7 +144,7 @@ export default function POSPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Columna de Productos (Catálogo) */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-2xl shadow-xl p-6 border border-purple-100">
+            <div className="bg-white rounded-2xl shadow-xl p-6 border border-blue-100">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-bold text-gray-800">Catálogo de Productos</h2>
                 <div className="relative w-64">
@@ -153,7 +153,7 @@ export default function POSPage() {
                     value={busqueda}
                     onChange={(e) => setBusqueda(e.target.value)}
                     placeholder="Buscar producto..."
-                    className="w-full pl-10 pr-4 py-3 border border-gray-400 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                   />
                   <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
                     🔍
@@ -163,7 +163,7 @@ export default function POSPage() {
 
               {cargando ? (
                 <div className="flex justify-center items-center py-12">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
                 </div>
               ) : (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-h-[70vh] overflow-y-auto pr-2">
@@ -173,16 +173,16 @@ export default function POSPage() {
                       onClick={() => agregarAlCarrito(producto)}
                       className={`bg-gradient-to-br from-white to-gray-50 p-4 rounded-xl shadow-md cursor-pointer text-center hover:shadow-lg transition-all duration-300 border-2 ${producto.inventario <= 0
                         ? 'border-red-200 opacity-60'
-                        : 'border-purple-100 hover:border-purple-300'
+                        : 'border-blue-100 hover:border-blue-300'
                         }`}
                     >
-                      <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-3 text-white text-lg">
+                      <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-red-500 rounded-full flex items-center justify-center mx-auto mb-3 text-white text-lg">
                         🍰
                       </div>
                       <h3 className="font-semibold text-gray-800 mb-1 line-clamp-2">
                         {producto.nombre}
                       </h3>
-                      <p className="text-lg font-bold text-purple-600 mb-1">
+                      <p className="text-lg font-bold text-blue-600 mb-1">
                         Bs. {producto.precio.toFixed(2)}
                       </p>
                       <div className={`text-xs font-medium px-2 py-1 rounded-full ${producto.inventario > 0
@@ -200,7 +200,7 @@ export default function POSPage() {
 
           {/* Columna del Carrito */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-2xl shadow-xl p-6 border border-purple-100 h-full flex flex-col">
+            <div className="bg-white rounded-2xl shadow-xl p-6 border border-blue-100 h-full flex flex-col">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-bold text-gray-800">Pedido Actual</h2>
                 {carrito.length > 0 && (
@@ -227,7 +227,7 @@ export default function POSPage() {
                     {carrito.map(item => (
                       <div
                         key={item.id}
-                        className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-100 hover:border-purple-200 transition-colors"
+                        className="bg-gradient-to-r from-blue-50 to-red-50 rounded-xl p-4 border border-blue-100 hover:border-blue-200 transition-colors"
                       >
                         <div className="flex justify-between items-start mb-2">
                           <div className="flex-1">
@@ -235,7 +235,7 @@ export default function POSPage() {
                             <p className="text-sm text-gray-600">Bs. {item.precio.toFixed(2)} c/u</p>
                           </div>
                           <div className="text-right">
-                            <p className="font-bold text-purple-600 text-lg">
+                            <p className="font-bold text-blue-600 text-lg">
                               Bs. {(item.precio * item.cantidad).toFixed(2)}
                             </p>
                           </div>
@@ -253,12 +253,12 @@ export default function POSPage() {
                               type="number"
                               value={item.cantidad}
                               onChange={(e) => actualizarCantidad(item.id, parseInt(e.target.value) || 0)}
-                              className="w-16 text-center border border-gray-300 rounded-lg py-1 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                              className="w-16 text-center border border-gray-300 rounded-lg py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                               min="0"
                             />
                             <button
                               onClick={() => actualizarCantidad(item.id, item.cantidad + 1)}
-                              className="w-8 h-8 bg-purple-600 text-white rounded-lg flex items-center justify-center hover:bg-purple-700 transition-colors"
+                              className="w-8 h-8 bg-blue-600 text-white rounded-lg flex items-center justify-center hover:bg-blue-700 transition-colors"
                             >
                               +
                             </button>
@@ -273,14 +273,14 @@ export default function POSPage() {
               <div className="pt-4 border-t border-gray-200">
                 <div className="flex justify-between items-center mb-4">
                   <span className="text-lg font-semibold text-gray-700">Total:</span>
-                  <span className="text-2xl font-bold text-purple-600">
+                  <span className="text-2xl font-bold text-blue-600">
                     Bs. {totalCarrito.toFixed(2)}
                   </span>
                 </div>
                 <button
                   onClick={finalizarVenta}
                   disabled={carrito.length === 0}
-                  className="w-full bg-gradient-to-r from-purple-600 to-pink-500 text-white font-bold py-4 rounded-xl hover:from-purple-700 hover:to-pink-600 transition-all duration-300 disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:hover:transform-none"
+                  className="w-full bg-gradient-to-r from-blue-600 to-red-500 text-white font-bold py-4 rounded-xl hover:from-blue-700 hover:to-red-600 transition-all duration-300 disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:hover:transform-none"
                 >
                   Finalizar Venta
                 </button>
@@ -313,3 +313,4 @@ export default function POSPage() {
     </div>
   );
 }
+

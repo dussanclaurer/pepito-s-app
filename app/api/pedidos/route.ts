@@ -1,7 +1,7 @@
 // app/api/pedidos/route.ts
 
 import { NextResponse } from "next/server";
-import { PrismaClient, Prisma } from "@prisma/client";
+import { PrismaClient, Prisma, MetodoPago } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -36,7 +36,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { clienteId, detalles, fechaEntrega, montoTotal, anticipo } = body;
+    const { clienteId, detalles, fechaEntrega, montoTotal, anticipo, metodoPagoAnticipo } = body;
 
     if (!clienteId || !detalles || !fechaEntrega || !montoTotal) {
       return NextResponse.json(
@@ -46,6 +46,10 @@ export async function POST(request: Request) {
         },
         { status: 400 }
       );
+    }
+    
+    if (metodoPagoAnticipo && !Object.values(MetodoPago).includes(metodoPagoAnticipo)) {
+      return NextResponse.json({ message: "Método de pago de anticipo no válido" }, { status: 400 });
     }
 
     const totalNum = Number(montoTotal);
@@ -77,6 +81,7 @@ export async function POST(request: Request) {
         fechaEntrega: new Date(fechaEntrega),
         montoTotal: totalNum,
         anticipo: anticipoNum,
+        metodoPagoAnticipo: metodoPagoAnticipo || MetodoPago.EFECTIVO,
       },
       include: {
         cliente: true,

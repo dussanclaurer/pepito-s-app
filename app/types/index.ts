@@ -44,6 +44,7 @@ export interface Pedido {
   fechaEntrega: string; 
   montoTotal: number;
   anticipo: number;
+  metodoPagoAnticipo: MetodoPago;
   estado: EstadoPedido;
   creadoEn: string;
   
