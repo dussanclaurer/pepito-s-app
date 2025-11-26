@@ -2,26 +2,17 @@
 
 import { NextResponse } from 'next/server';
 import { MetodoPago, PrismaClient } from '@prisma/client';
+import { toZonedTime } from 'date-fns-tz';
+import { startOfDay, endOfDay } from 'date-fns';
 
 const prisma = new PrismaClient();
 
-function getBoliviaDateString() {
-  const now = new Date();
-  const formatter = new Intl.DateTimeFormat('en-CA', { 
-    timeZone: 'America/La_Paz',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  });
-  return formatter.format(now); 
-}
-
 export async function GET(request: Request) {
   try {
-    const fechaHoy = getBoliviaDateString(); 
-    
-    const inicioDelDia = new Date(`${fechaHoy}T00:00:00.000-04:00`); 
-    const finDelDia = new Date(`${fechaHoy}T23:59:59.999-04:00`);
+    const timeZone = 'America/La_Paz';
+    const ahora = toZonedTime(new Date(), timeZone);
+    const inicioDelDia = startOfDay(ahora);
+    const finDelDia = endOfDay(ahora);
 
     const totalesVentasPorMetodo = await prisma.venta.groupBy({
       by: ['metodoPago'],
@@ -78,7 +69,7 @@ export async function GET(request: Request) {
     const respuesta = {
       totalesPorMetodo: reporteFormateado,
       totalGeneral: totalGeneral,
-      fechaReporte: fechaHoy.split('-').reverse().join('/'), 
+      fechaReporte: new Date().toLocaleDateString('es-BO', { timeZone }),
       desglose: {
         totalVentas: totalGeneralVentas,
         totalAnticipos: totalAnticipos,

@@ -2,51 +2,41 @@
 
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
+import { toZonedTime } from "date-fns-tz";
+import {
+  startOfDay,
+  endOfDay,
+  startOfWeek,
+  endOfWeek,
+  startOfMonth,
+  endOfMonth,
+} from "date-fns";
 
 const prisma = new PrismaClient();
-
-const getStartOfDayBOL = (date: Date): Date => {
-  date.setUTCHours(-4, 0, 0, 0);
-  return date;
-};
-
-const getStartOfWeekBOL = (date: Date): Date => {
-  const d = new Date(date);
-  d.setUTCHours(-4, 0, 0, 0);
-  const day = d.getUTCDay();
-  const diff = d.getUTCDate() - day + (day === 0 ? -6 : 1);
-  return new Date(d.setUTCDate(diff));
-};
-
-const getStartOfMonthBOL = (date: Date): Date => {
-  const d = new Date(date);
-  d.setUTCHours(-4, 0, 0, 0);
-  d.setUTCDate(1);
-  return d;
-};
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const periodo = searchParams.get("periodo") || "dia";
+  const timeZone = "America/La_Paz";
 
-  const ahoraBOL = new Date(
-    new Date().toLocaleString("en-US", { timeZone: "America/La_Paz" })
-  );
+  const ahora = toZonedTime(new Date(), timeZone);
 
   let fechaInicio: Date;
-  const fechaFin = new Date(ahoraBOL); 
-  fechaFin.setUTCHours(23 - 4, 59, 59, 999); 
+  let fechaFin: Date;
 
   switch (periodo) {
     case "semana":
-      fechaInicio = getStartOfWeekBOL(ahoraBOL);
+      fechaInicio = startOfWeek(ahora);
+      fechaFin = endOfWeek(ahora);
       break;
     case "mes":
-      fechaInicio = getStartOfMonthBOL(ahoraBOL);
+      fechaInicio = startOfMonth(ahora);
+      fechaFin = endOfMonth(ahora);
       break;
     case "dia":
     default:
-      fechaInicio = getStartOfDayBOL(ahoraBOL);
+      fechaInicio = startOfDay(ahora);
+      fechaFin = endOfDay(ahora);
       break;
   }
 
@@ -65,7 +55,7 @@ export async function GET(request: Request) {
       orderBy: { creadoEn: "desc" },
     });
 
-    return NextResponse.json(ventas); 
+    return NextResponse.json(ventas);
   } catch (error) {
     console.error("Error al obtener historial de ventas:", error);
     return NextResponse.json(
