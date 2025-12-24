@@ -282,7 +282,7 @@ export default function PedidosPage() {
                       value={telefonoBusqueda}
                       onChange={(e) => setTelefonoBusqueda(e.target.value)}
                       placeholder="Buscar por teléfono..."
-                      className="w-full px-4 py-3 border border-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      className="w-full px-4 py-3 border border-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-900"
                     />
                     <button
                       type="button"
@@ -318,7 +318,7 @@ export default function PedidosPage() {
                       onChange={(e) => setNuevoNombre(e.target.value)}
                       placeholder="Ej: Ana López"
                       required
-                      className="w-full mt-1 px-4 py-3 border border-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500"
+                      className="w-full mt-1 px-4 py-3 border border-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900"
                     />
                   </label>
                 )}
@@ -338,7 +338,7 @@ export default function PedidosPage() {
                     rows={4}
                     placeholder="Ej: Torta 3 leches, 2 pisos, temática de Spiderman, 'Feliz Cumpleaños Lucas'"
                     required
-                    className="w-full mt-1 px-4 py-3 border border-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500"
+                    className="w-full mt-1 px-4 py-3 border border-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900"
                   />
                 </label>
 
@@ -351,7 +351,7 @@ export default function PedidosPage() {
                     value={fechaEntrega}
                     onChange={(e) => setFechaEntrega(e.target.value)}
                     required
-                    className="w-full mt-1 px-4 py-3 border border-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500"
+                    className="w-full mt-1 px-4 py-3 border border-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900"
                   />
                 </label>
 
@@ -369,7 +369,7 @@ export default function PedidosPage() {
                         setMontoTotal(parseFloat(e.target.value) || 0)
                       }
                       required
-                      className="w-full mt-1 px-4 py-3 border border-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500"
+                      className="w-full mt-1 px-4 py-3 border border-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900"
                     />
                   </label>
                   <label className="block">
@@ -384,7 +384,7 @@ export default function PedidosPage() {
                       onChange={(e) =>
                         setAnticipo(parseFloat(e.target.value) || 0)
                       }
-                      className="w-full mt-1 px-4 py-3 border border-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500"
+                      className="w-full mt-1 px-4 py-3 border border-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900"
                     />
                   </label>
                 </div>
@@ -527,7 +527,7 @@ export default function PedidosPage() {
                                 e.target.value as EstadoPedido
                               )
                             }
-                            className="text-sm border border-gray-300 rounded-lg py-1 px-2 focus:ring-2 focus:ring-blue-500"
+                            className="text-sm border border-gray-300 rounded-lg py-1 px-2 focus:ring-2 focus:ring-blue-500 text-gray-900"
                           >
                             {estadosDisponibles.map((estado) => (
                               <option key={estado} value={estado}>

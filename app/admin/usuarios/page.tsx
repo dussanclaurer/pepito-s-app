@@ -125,7 +125,7 @@ export default function AdminUsuariosPage() {
                     value={formData.name}
                     onChange={handleFormChange}
                     required
-                    className="w-full px-4 py-3 border border-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-3 border border-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900"
                   />
                 </div>
                 <div>
@@ -138,7 +138,7 @@ export default function AdminUsuariosPage() {
                     value={formData.email}
                     onChange={handleFormChange}
                     required
-                    className="w-full px-4 py-3 border border-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-3 border border-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900"
                   />
                 </div>
                 <div>
@@ -151,7 +151,7 @@ export default function AdminUsuariosPage() {
                     value={formData.password}
                     onChange={handleFormChange}
                     required
-                    className="w-full px-4 py-3 border border-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-3 border border-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900"
                   />
                 </div>
                 <div>
@@ -163,7 +163,7 @@ export default function AdminUsuariosPage() {
                     value={formData.role}
                     onChange={handleFormChange}
                     required
-                    className="w-full px-4 py-3 border border-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white"
+                    className="w-full px-4 py-3 border border-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
                   >
                     <option value={Role.CAJERO}>Cajero</option>
                     <option value={Role.ADMIN}>Administrador</option>

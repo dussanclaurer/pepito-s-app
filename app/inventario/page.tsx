@@ -170,7 +170,7 @@ export default function InventarioPage() {
                     value={nombreNuevaCategoria}
                     onChange={(e) => setNombreNuevaCategoria(e.target.value)}
                     placeholder="Nombre de la categoría"
-                    className="w-full pl-4 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    className="w-full pl-4 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-900"
                   />
                 </div>
                 <button 
@@ -196,7 +196,7 @@ export default function InventarioPage() {
                   onChange={handleInputChange} 
                   type="text" 
                   placeholder="Nombre del producto" 
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-900"
                 />
                 <input 
                   name="precio" 
@@ -205,7 +205,7 @@ export default function InventarioPage() {
                   type="number" 
                   step="0.01"
                   placeholder="Precio (Bs.)" 
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-900"
                 />
                 <input 
                   name="inventario" 
@@ -213,13 +213,13 @@ export default function InventarioPage() {
                   onChange={handleInputChange} 
                   type="number" 
                   placeholder="Inventario inicial" 
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-900"
                 />
                 <select 
                   name="categoriaId" 
                   value={nuevoProducto.categoriaId} 
                   onChange={handleInputChange} 
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-900"
                 >
                   <option value="" disabled>Selecciona una categoría</option>
                   {categorias.map(cat => (
@@ -356,7 +356,7 @@ export default function InventarioPage() {
                   value={productoAEditar.nombre} 
                   onChange={handleInputChange} 
                   type="text" 
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-900"
                 />
               </div>
               
@@ -368,7 +368,7 @@ export default function InventarioPage() {
                   onChange={handleInputChange} 
                   type="number" 
                   step="0.01"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-900"
                 />
               </div>
               
@@ -379,7 +379,7 @@ export default function InventarioPage() {
                   value={productoAEditar.inventario} 
                   onChange={handleInputChange} 
                   type="number" 
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-900"
                 />
               </div>
               
@@ -389,7 +389,7 @@ export default function InventarioPage() {
                   name="categoriaId" 
                   value={productoAEditar.categoriaId} 
                   onChange={handleInputChange} 
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-900"
                 >
                   {categorias.map(cat => (
                     <option key={cat.id} value={cat.id}>{cat.nombre}</option>

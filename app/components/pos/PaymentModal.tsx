@@ -155,7 +155,7 @@ export default function PaymentModal({
                   value={montoRecibido}
                   onChange={(e) => setMontoRecibido(e.target.value)}
                   placeholder="Ej: 100"
-                  className="w-full text-center text-2xl p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="w-full text-center text-2xl p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-900"
                 />
               </div>
 

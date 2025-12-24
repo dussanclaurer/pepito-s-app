@@ -153,7 +153,7 @@ export default function POSPage() {
                     value={busqueda}
                     onChange={(e) => setBusqueda(e.target.value)}
                     placeholder="Buscar producto..."
-                    className="w-full pl-10 pr-4 py-3 border border-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-900"
                   />
                   <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
                     🔍
@@ -253,7 +253,7 @@ export default function POSPage() {
                               type="number"
                               value={item.cantidad}
                               onChange={(e) => actualizarCantidad(item.id, parseInt(e.target.value) || 0)}
-                              className="w-16 text-center border border-gray-300 rounded-lg py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                              className="w-16 text-center border border-gray-300 rounded-lg py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                               min="0"
                             />
                             <button
