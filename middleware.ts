@@ -21,6 +21,12 @@ export async function middleware(req: NextRequest) {
   if (isAuth && !isPublicPath) {
     const userRole = token.role as string;
 
+    // Allow cashiers to access cierre-caja endpoint
+    const isCierreCajaRoute = pathname === '/cierre-caja' || pathname === '/api/reportes/cierre-caja';
+    if (isCierreCajaRoute) {
+      return NextResponse.next();
+    }
+
     const adminRoutes = [
       '/inventario',
       '/reportes',
