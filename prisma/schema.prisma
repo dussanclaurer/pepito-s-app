@@ -54,15 +54,29 @@ model Producto {
 // Modelo para registrar cada transacción de venta
 model Venta {
   id       Int      @id @default(autoincrement())
-  total    Float
+  subtotal Float    // Suma de productos antes de descuento
+  descuento Float   @default(0) // Rebaja aplicada  
+  total    Float    // subtotal - descuento
   creadoEn DateTime @default(now())
 
-  // Campos de Pagos
+  // Campos de Pagos DEPRECADOS (mantener por compatibilidad con ventas antiguas)
   metodoPago    MetodoPago @default(EFECTIVO) 
   montoRecibido Float      @default(0)        
   cambio        Float      @default(0)        
 
   productosVendidos VentaProducto[]
+  pagos             PagoDetalle[]
+}
+
+// Modelo para registrar detalles de pago (soporte para pagos divididos)
+model PagoDetalle {
+  id         Int        @id @default(autoincrement())
+  metodoPago MetodoPago
+  monto      Float
+  cambio     Float      @default(0) // Solo para efectivo
+  
+  ventaId Int
+  venta   Venta @relation(fields: [ventaId], references: [id], onDelete: Cascade)
 }
 
 // Modelo intermedio para registrar qué productos se vendieron en cada venta
@@ -96,12 +110,28 @@ model Pedido {
   montoTotal    Float
   anticipo      Float        @default(0)
   metodoPagoAnticipo MetodoPago @default(EFECTIVO)
+  descuentoSaldo Float       @default(0) // Descuento aplicado al saldo final
   estado        EstadoPedido @default(PENDIENTE) 
   creadoEn      DateTime     @default(now())
   actualizadoEn DateTime     @updatedAt
 
   clienteId Int
   cliente   Cliente @relation(fields: [clienteId], references: [id])
+  
+  pagos PagoPedido[] // Pagos del saldo
+}
+
+// Modelo para registrar pagos del saldo de pedidos
+model PagoPedido {
+  id         Int        @id @default(autoincrement())
+  pedidoId   Int
+  metodoPago MetodoPago
+  monto      Float
+  cambio     Float      @default(0)
+  esSaldo    Boolean    @default(false) // true = pago del saldo final
+  creadoEn   DateTime   @default(now())
+  
+  pedido Pedido @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
 }
 
 // Modelo para los usuarios

@@ -14,16 +14,19 @@ export async function GET(request: Request) {
     const inicioDelDia = startOfDay(ahora);
     const finDelDia = endOfDay(ahora);
 
-    const totalesVentasPorMetodo = await prisma.venta.groupBy({
+    // Obtener totales de ventas desde PagoDetalle (nueva forma)
+    const totalesVentasPorMetodo = await prisma.pagoDetalle.groupBy({
       by: ['metodoPago'],
       where: {
-        creadoEn: {
-          gte: inicioDelDia, 
-          lte: finDelDia,     
+        venta: {
+          creadoEn: {
+            gte: inicioDelDia, 
+            lte: finDelDia,     
+          },
         },
       },
       _sum: {
-        total: true, 
+        monto: true, 
       },
     });
 
@@ -48,7 +51,8 @@ export async function GET(request: Request) {
     reporteFinal.set(MetodoPago.QR, 0);
 
     for (const item of totalesVentasPorMetodo) {
-      reporteFinal.set(item.metodoPago, (reporteFinal.get(item.metodoPago) || 0) + (item._sum.total || 0));
+      const montoActual = reporteFinal.get(item.metodoPago) || 0;
+      reporteFinal.set(item.metodoPago, montoActual + (item._sum.monto || 0));
     }
     
     for (const item of anticiposPorMetodo) {
@@ -57,14 +61,110 @@ export async function GET(request: Request) {
       reporteFinal.set(metodo, (reporteFinal.get(metodo) || 0) + totalAnticipo);
     }
     
+    // Obtener pagos delSaldo de pedidos completados hoy
+    const pagosSaldoPedidos = await prisma.pagoPedido.groupBy({
+      by: ['metodoPago'],
+      where: {
+        creadoEn: {
+          gte: inicioDelDia,
+          lte: finDelDia,
+        },
+        esSaldo: true,
+      },
+      _sum: {
+        monto: true,
+      },
+    });
+
+    // Agregar pagos de saldo de pedidos al reporte
+    for (const item of pagosSaldoPedidos) {
+      const montoActual = reporteFinal.get(item.metodoPago) || 0;
+      reporteFinal.set(item.metodoPago, montoActual + (item._sum.monto || 0));
+    }
+    
     const reporteFormateado = Array.from(reporteFinal.entries()).map(([metodoPago, total]) => ({
       metodoPago,
       total,
     })).sort((a, b) => a.metodoPago.localeCompare(b.metodoPago));
 
-    const totalGeneralVentas = totalesVentasPorMetodo.reduce((acc, item) => acc + (item._sum.total || 0), 0);
+    const totalGeneralVentas = totalesVentasPorMetodo.reduce((acc, item) => acc + (item._sum.monto || 0), 0);
     const totalAnticipos = anticiposPorMetodo.reduce((acc, item) => acc + (item._sum.anticipo || 0), 0);
-    const totalGeneral = totalGeneralVentas + totalAnticipos;
+    const totalPagosSaldo = pagosSaldoPedidos.reduce((acc, item) => acc + (item._sum.monto || 0), 0);
+    const totalGeneral = totalGeneralVentas + totalAnticipos + totalPagosSaldo;
+    
+    // Obtener total de descuentos aplicados hoy (ventas + pedidos)
+    const descuentosHoy = await prisma.venta.aggregate({
+      where: {
+        creadoEn: {
+          gte: inicioDelDia,
+          lte: finDelDia,
+        },
+      },
+      _sum: {
+        descuento: true,
+      },
+    });
+
+    const descuentosPedidos = await prisma.pedido.aggregate({
+      where: {
+        creadoEn: {
+          gte: inicioDelDia,
+          lte: finDelDia,
+        },
+        estado: "COMPLETADO",
+      },
+      _sum: {
+        descuentoSaldo: true,
+      },
+    });
+
+    const totalDescuentos = (descuentosHoy._sum.descuento || 0) + (descuentosPedidos._sum.descuentoSaldo || 0);
+    
+    // Get products sold today with breakdown
+    const productosVendidosHoy = await prisma.ventaProducto.groupBy({
+      by: ['productoId'],
+      where: {
+        venta: {
+          creadoEn: {
+            gte: inicioDelDia,
+            lte: finDelDia,
+          },
+        },
+      },
+      _sum: {
+        cantidad: true,
+      },
+    });
+
+    // Get product names and prices
+    const productosInfo = await prisma.producto.findMany({
+      where: {
+        id: {
+          in: productosVendidosHoy.map(p => p.productoId),
+        },
+      },
+      select: {
+        id: true,
+        nombre: true,
+        precio: true,
+      },
+    });
+
+    const productosMap = new Map(productosInfo.map(p => [p.id, p]));
+
+    const productosVendidos = productosVendidosHoy.map(pv => {
+      const info = productosMap.get(pv.productoId);
+      const cantidadVendida = pv._sum.cantidad || 0;
+      const ingresoGenerado = (info?.precio || 0) * cantidadVendida;
+      
+      return {
+        nombre: info?.nombre || 'Producto desconocido',
+        cantidadVendida,
+        ingresoGenerado,
+      };
+    }).sort((a, b) => b.cantidadVendida - a.cantidadVendida);
+
+    const totalUnidadesVendidas = productosVendidos.reduce((acc, p) => acc + p.cantidadVendida, 0);
     
     const respuesta = {
       totalesPorMetodo: reporteFormateado,
@@ -73,7 +173,10 @@ export async function GET(request: Request) {
       desglose: {
         totalVentas: totalGeneralVentas,
         totalAnticipos: totalAnticipos,
-      }
+      },
+      totalDescuentos: totalDescuentos,
+      productosVendidos,
+      totalUnidadesVendidas,
     };
 
     return NextResponse.json(respuesta, { status: 200 });

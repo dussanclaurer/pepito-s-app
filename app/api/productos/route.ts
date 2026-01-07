@@ -15,12 +15,28 @@ export async function GET() {
     const productos = await prisma.producto.findMany({
       include: {
         categoria: true,
+        ventas: {
+          select: {
+            cantidad: true,
+          },
+        },
       },
       orderBy: {
         nombre: 'asc',
       },
     });
-    return NextResponse.json(productos);
+
+    // Calculate total quantity sold for each product
+    const productosConVentas = productos.map(producto => {
+      const cantidadVendida = producto.ventas.reduce((total, venta) => total + venta.cantidad, 0);
+      const { ventas, ...productoSinVentas } = producto;
+      return {
+        ...productoSinVentas,
+        cantidadVendida,
+      };
+    });
+
+    return NextResponse.json(productosConVentas);
   } catch (error) {
     console.error("Error al listar productos:", error);
     return NextResponse.json({ message: "Error al listar productos" }, { status: 500 });

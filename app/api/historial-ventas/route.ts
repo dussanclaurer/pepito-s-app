@@ -51,6 +51,7 @@ export async function GET(request: Request) {
             producto: { select: { nombre: true } },
           },
         },
+        pagos: true, // Incluir detalles de pago
       },
       orderBy: { creadoEn: "desc" },
     });

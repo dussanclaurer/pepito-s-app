@@ -104,16 +104,30 @@ export default function HistorialVentasPage() {
                       <p className="text-lg font-bold text-gray-800">
                         Total: Bs. {venta.total.toFixed(2)}
                       </p>
+                      {venta.descuento > 0 && (
+                        <p className="text-xs text-red-600">
+                          (Descuento: Bs. {venta.descuento.toFixed(2)})
+                        </p>
+                      )}
                     </div>
                     <div className="text-right">
                       <span className="text-sm text-gray-600">{formatFecha(venta.creadoEn)}</span>
-                      <span 
-                        className={`text-xs font-bold px-2 py-1 rounded-full ml-2 ${
-                          venta.metodoPago === 'EFECTIVO' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
-                        }`}
-                      >
-                        {venta.metodoPago}
-                      </span>
+                      <div className="mt-1">
+                        {/* Mostrar si tiene pagos divididos */}
+                        {venta.pagos && venta.pagos.length > 1 ? (
+                          <span className="text-xs font-bold px-2 py-1 rounded-full bg-purple-100 text-purple-800">
+                            PAGO DIVIDIDO
+                          </span>
+                        ) : (
+                          <span 
+                            className={`text-xs font-bold px-2 py-1 rounded-full ${
+                              venta.metodoPago === 'EFECTIVO' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
+                            }`}
+                          >
+                            {venta.metodoPago}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
 
@@ -121,7 +135,7 @@ export default function HistorialVentasPage() {
                   {ventaSeleccionada?.id === venta.id && (
                     <div className="mt-4 pt-4 border-t border-blue-200 animate-fade-in">
                       <h4 className="font-semibold text-gray-700 mb-2">Detalles de la Venta:</h4>
-                      <ul className="space-y-1 text-sm list-disc list-inside bg-white p-3 rounded-md border">
+                      <ul className="space-y-1 text-sm list-disc list-inside bg-white p-3 rounded-md border text-gray-900">
                         {venta.productosVendidos.map(item => (
                           <li key={item.id}>
                             {item.cantidad} x {item.producto.nombre} 
@@ -129,15 +143,60 @@ export default function HistorialVentasPage() {
                           </li>
                         ))}
                       </ul>
-                      <div className="grid grid-cols-2 gap-2 mt-3 text-sm">
-                        <div className="bg-white p-2 rounded-lg border">
-                          <span className="text-gray-500 block">Monto Recibido</span>
-                          <span className="font-semibold">Bs. {venta.montoRecibido.toFixed(2)}</span>
+
+                      {/* Mostrar subtotal y descuento si aplica */}
+                      {venta.descuento > 0 && (
+                        <div className="mt-3 bg-white p-3 rounded-lg border">
+                          <div className="flex justify-between text-sm text-gray-900">
+                            <span className="text-gray-600">Subtotal:</span>
+                            <span className="font-semibold">Bs. {venta.subtotal.toFixed(2)}</span>
+                          </div>
+                          <div className="flex justify-between text-sm text-red-600">
+                            <span>Descuento:</span>
+                            <span className="font-semibold">- Bs. {venta.descuento.toFixed(2)}</span>
+                          </div>
+                          <div className="flex justify-between text-sm font-bold border-t border-gray-200 pt-1 mt-1 text-gray-900">
+                            <span>Total:</span>
+                            <span>Bs. {venta.total.toFixed(2)}</span>
+                          </div>
                         </div>
-                        <div className="bg-white p-2 rounded-lg border">
-                          <span className="text-gray-500 block">Cambio Entregado</span>
-                          <span className="font-semibold">Bs. {venta.cambio.toFixed(2)}</span>
-                        </div>
+                      )}
+
+                      {/* Métodos de Pago */}
+                      <div className="mt-3">
+                        <h5 className="font-semibold text-gray-700 mb-2">Métodos de Pago:</h5>
+                        {venta.pagos && venta.pagos.length > 0 ? (
+                          <div className="space-y-2">
+                            {venta.pagos.map((pago, index) => (
+                              <div key={index} className="bg-white p-2 rounded-lg border flex justify-between items-center">
+                                <div>
+                                  <span className="font-medium text-gray-900">
+                                    {pago.metodoPago === 'EFECTIVO' ? '💵 Efectivo' : '📱 QR'}
+                                  </span>
+                                  {pago.cambio > 0 && (
+                                    <span className="text-xs text-gray-500 ml-2">
+                                      (Cambio: Bs. {pago.cambio.toFixed(2)})
+                                    </span>
+                                  )}
+                                </div>
+                                <span className="font-bold text-blue-600">
+                                  Bs. {pago.monto.toFixed(2)}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="grid grid-cols-2 gap-2 text-sm">
+                            <div className="bg-white p-2 rounded-lg border">
+                              <span className="text-gray-500 block">Monto Recibido</span>
+                              <span className="font-semibold text-gray-900">Bs. {venta.montoRecibido.toFixed(2)}</span>
+                            </div>
+                            <div className="bg-white p-2 rounded-lg border">
+                              <span className="text-gray-500 block">Cambio Entregado</span>
+                              <span className="font-semibold text-gray-900">Bs. {venta.cambio.toFixed(2)}</span>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   )}

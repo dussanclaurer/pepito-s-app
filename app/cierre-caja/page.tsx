@@ -16,6 +16,13 @@ interface ReporteCierre {
     totalVentas: number;
     totalAnticipos: number;
   };
+  totalDescuentos: number;
+  productosVendidos: {
+    nombre: string;
+    cantidadVendida: number;
+    ingresoGenerado: number;
+  }[];
+  totalUnidadesVendidas: number;
 }
 
 export default function CierreCajaPage() {
@@ -121,6 +128,49 @@ export default function CierreCajaPage() {
                     <span>Total Anticipos (Pedidos):</span>
                     <span className="font-medium">Bs. {reporte.desglose.totalAnticipos.toFixed(2)}</span>
                   </div>
+                  {/* Mostrar descuentos si hay alguno */}
+                  {reporte.totalDescuentos > 0 && (
+                    <div className="flex justify-between text-red-600 print:text-black">
+                      <span>💸 Total Descuentos Aplicados:</span>
+                      <span className="font-medium">- Bs. {reporte.totalDescuentos.toFixed(2)}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Productos Vendidos Hoy */}
+            {reporte.productosVendidos && reporte.productosVendidos.length > 0 && (
+              <div className="border-t-2 border-dashed border-gray-300 pt-6 mb-6">
+                <h3 className="text-lg font-bold text-gray-800 mb-4 print:text-black flex items-center gap-2">
+                  <span>📊</span> Productos Vendidos Hoy
+                </h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="bg-gray-50 print:bg-white border-b border-gray-200">
+                        <th className="p-2 text-left font-semibold text-gray-700 print:text-black">Producto</th>
+                        <th className="p-2 text-right font-semibold text-gray-700 print:text-black">Cantidad</th>
+                        <th className="p-2 text-right font-semibold text-gray-700 print:text-black">Ingreso</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {reporte.productosVendidos.map((producto, index) => (
+                        <tr key={index} className="border-b border-gray-100 print:border-gray-400">
+                          <td className="p-2 text-gray-800 print:text-black">{producto.nombre}</td>
+                          <td className="p-2 text-right text-gray-700 print:text-black">{producto.cantidadVendida} uds.</td>
+                          <td className="p-2 text-right font-medium text-green-600 print:text-black">Bs. {producto.ingresoGenerado.toFixed(2)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                    <tfoot>
+                      <tr className="bg-blue-50 print:bg-white border-t-2 border-gray-300">
+                        <td className="p-2 font-bold text-gray-800 print:text-black">Total</td>
+                        <td className="p-2 text-right font-bold text-blue-600 print:text-black">{reporte.totalUnidadesVendidas} uds.</td>
+                        <td className="p-2"></td>
+                      </tr>
+                    </tfoot>
+                  </table>
                 </div>
               </div>
             )}

@@ -4,6 +4,7 @@
 
 import { useState, useEffect, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
+import { Tag, Cake, ClipboardList, Package, TrendingUp, Pencil, Trash2 } from 'lucide-react';
 
 interface Categoria {
   id: number;
@@ -17,6 +18,7 @@ interface Producto {
   inventario: number;
   categoriaId: number; 
   categoria: Categoria;
+  cantidadVendida: number;
 }
 
 const estadoInicialProducto = {
@@ -160,7 +162,9 @@ export default function InventarioPage() {
             {/* Formulario de Categorías */}
             <div className="bg-white rounded-2xl shadow-xl p-6 border border-blue-100">
               <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                <span className="bg-blue-100 text-blue-600 p-2 rounded-lg">🏷️</span>
+                <span className="bg-blue-100 text-blue-600 p-2 rounded-lg">
+                  <Tag className="w-5 h-5" />
+                </span>
                 Nueva Categoría
               </h2>
               <form onSubmit={handleCategoriaSubmit} className="space-y-4">
@@ -186,7 +190,9 @@ export default function InventarioPage() {
             {/* Formulario de Productos */}
             <div className="bg-white rounded-2xl shadow-xl p-6 border border-blue-100">
               <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                <span className="bg-green-100 text-green-600 p-2 rounded-lg">🍰</span>
+                <span className="bg-green-100 text-green-600 p-2 rounded-lg">
+                  <Cake className="w-5 h-5" />
+                </span>
                 Nuevo Producto
               </h2>
               <form onSubmit={handleProductoSubmit} className="space-y-4">
@@ -242,7 +248,9 @@ export default function InventarioPage() {
             <div className="bg-white rounded-2xl shadow-xl p-6 border border-blue-100">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-                  <span className="bg-blue-100 text-blue-600 p-2 rounded-lg">📋</span>
+                  <span className="bg-blue-100 text-blue-600 p-2 rounded-lg">
+                    <ClipboardList className="w-5 h-5" />
+                  </span>
                   Lista de Productos
                 </h2>
                 <div className="text-sm text-gray-500">
@@ -263,6 +271,7 @@ export default function InventarioPage() {
                         <th className="p-4 font-semibold text-gray-700 text-left">Categoría</th>
                         <th className="p-4 font-semibold text-gray-700 text-left">Precio</th>
                         <th className="p-4 font-semibold text-gray-700 text-left">Stock</th>
+                        <th className="p-4 font-semibold text-gray-700 text-left">Vendidos</th>
                         <th className="p-4 font-semibold text-gray-700 text-left rounded-r-xl">Acciones</th>
                       </tr>
                     </thead>
@@ -301,18 +310,28 @@ export default function InventarioPage() {
                             </div>
                           </td>
                           <td className="p-4">
+                            <div className="flex items-center gap-2">
+                              <TrendingUp className="w-4 h-4 text-blue-600" />
+                              <span className="text-sm font-semibold text-gray-700">
+                                {producto.cantidadVendida} uds.
+                              </span>
+                            </div>
+                          </td>
+                          <td className="p-4">
                             <div className="flex gap-2">
                               <button 
                                 onClick={() => handleEditClick(producto)}
-                                className="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium flex items-center gap-1"
+                                className="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 transition-all duration-200 text-sm font-medium flex items-center gap-1"
                               >
-                                ✏️ Editar
+                                <Pencil className="w-3 h-3" />
+                                Editar
                               </button>
                               <button 
                                 onClick={() => handleDeleteClick(producto.id)}
-                                className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 transition-colors text-sm font-medium flex items-center gap-1"
+                                className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 transition-all duration-200 text-sm font-medium flex items-center gap-1"
                               >
-                                🗑️ Eliminar
+                                <Trash2 className="w-3 h-3" />
+                                Eliminar
                               </button>
                             </div>
                           </td>
@@ -323,7 +342,7 @@ export default function InventarioPage() {
                   
                   {productos.length === 0 && (
                     <div className="text-center py-12">
-                      <div className="text-6xl mb-4">📦</div>
+                      <Package className="w-16 h-16 mx-auto mb-4 text-gray-400" />
                       <p className="text-gray-500 text-lg">No hay productos registrados</p>
                       <p className="text-gray-400 text-sm mt-2">
                         Agrega tu primer producto usando el formulario
@@ -340,10 +359,12 @@ export default function InventarioPage() {
       {/* Modal de Edición */}
       {modalAbierto && productoAEditar && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md transform transition-all">
+          <div className="backdrop-blur-xl bg-white/95 rounded-2xl shadow-2xl w-full max-w-md border border-white/20 transform transition-all">
             <div className="p-6 border-b border-gray-200">
               <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-                <span className="bg-blue-100 text-blue-600 p-2 rounded-lg">✏️</span>
+                <span className="bg-blue-100 text-blue-600 p-2 rounded-lg">
+                  <Pencil className="w-5 h-5" />
+                </span>
                 Editar Producto
               </h2>
             </div>

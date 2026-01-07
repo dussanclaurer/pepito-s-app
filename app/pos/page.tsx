@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import PaymentModal from '@/app/components/pos/PaymentModal';
 import ReceiptModal from '@/app/components/pos/ReceiptModal';
 import type { Producto, CartItem, VentaData, VentaParaRecibo } from '@/app/types/index';
+import { Search, Cake, ShoppingCart, Plus, Minus } from 'lucide-react';
 
 export default function POSPage() {
   const [productos, setProductos] = useState<Producto[]>([]);
@@ -156,7 +157,7 @@ export default function POSPage() {
                     className="w-full pl-10 pr-4 py-3 border border-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-900"
                   />
                   <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                    🔍
+                    <Search className="w-5 h-5" />
                   </div>
                 </div>
               </div>
@@ -176,8 +177,8 @@ export default function POSPage() {
                         : 'border-blue-100 hover:border-blue-300'
                         }`}
                     >
-                      <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-red-500 rounded-full flex items-center justify-center mx-auto mb-3 text-white text-lg">
-                        🍰
+                      <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-red-500 rounded-full flex items-center justify-center mx-auto mb-3 text-white">
+                        <Cake className="w-6 h-6" />
                       </div>
                       <h3 className="font-semibold text-gray-800 mb-1 line-clamp-2">
                         {producto.nombre}
@@ -216,7 +217,7 @@ export default function POSPage() {
               <div className="flex-grow overflow-y-auto mb-4 pr-2">
                 {carrito.length === 0 ? (
                   <div className="text-center py-12">
-                    <div className="text-6xl mb-4">🛒</div>
+                    <ShoppingCart className="w-16 h-16 mx-auto mb-4 text-gray-400" />
                     <p className="text-gray-500 text-lg">El carrito está vacío</p>
                     <p className="text-gray-400 text-sm mt-2">
                       Agrega productos desde el catálogo
@@ -245,9 +246,9 @@ export default function POSPage() {
                           <div className="flex items-center gap-2">
                             <button
                               onClick={() => actualizarCantidad(item.id, item.cantidad - 1)}
-                              className="w-8 h-8 bg-gray-200 rounded-lg flex items-center justify-center hover:bg-gray-300 transition-colors"
+                              className="w-8 h-8 bg-gray-200 rounded-lg flex items-center justify-center hover:bg-gray-300 transition-all duration-200"
                             >
-                              -
+                              <Minus className="w-4 h-4 text-gray-700" />
                             </button>
                             <input
                               type="number"
@@ -258,9 +259,9 @@ export default function POSPage() {
                             />
                             <button
                               onClick={() => actualizarCantidad(item.id, item.cantidad + 1)}
-                              className="w-8 h-8 bg-blue-600 text-white rounded-lg flex items-center justify-center hover:bg-blue-700 transition-colors"
+                              className="w-8 h-8 bg-blue-600 text-white rounded-lg flex items-center justify-center hover:bg-blue-700 transition-all duration-200"
                             >
-                              +
+                              <Plus className="w-4 h-4" />
                             </button>
                           </div>
                         </div>
@@ -294,7 +295,7 @@ export default function POSPage() {
       <PaymentModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        total={totalCarrito}
+        subtotal={totalCarrito}
         cartItems={carrito.map(item => ({
           productoId: item.id,
           cantidad: item.cantidad,

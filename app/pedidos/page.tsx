@@ -5,6 +5,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Pedido, Cliente, EstadoPedido } from "@/app/types";
+import CompletarPedidoModal from "@/app/components/pedidos/CompletarPedidoModal";
+import { PartyPopper } from "lucide-react";
 
 type MetodoPago = "EFECTIVO" | "QR";
 
@@ -65,6 +67,10 @@ export default function PedidosPage() {
     useState<MetodoPago>("EFECTIVO");
 
   const [enviando, setEnviando] = useState(false);
+
+  // Estados para el modal de completar pedido
+  const [pedidoParaCompletar, setPedidoParaCompletar] = useState<Pedido | null>(null);
+  const [modalPagoAbierto, setModalPagoAbierto] = useState(false);
 
   const mostrarNotificacion = (
     mensaje: string,
@@ -195,6 +201,17 @@ export default function PedidosPage() {
     pedidoId: number,
     nuevoEstado: EstadoPedido
   ) => {
+    // Si se está marcando como COMPLETADO, mostrar modal de pago
+    if (nuevoEstado === "COMPLETADO") {
+      const pedido = pedidos.find((p) => p.id === pedidoId);
+      if (pedido) {
+        setPedidoParaCompletar(pedido);
+        setModalPagoAbierto(true);
+        return; // No continuar con el cambio de estado hasta que se procese el pago
+      }
+    }
+
+    // Para otros estados o CANCELADO, continuar normalmente
     try {
       const res = await fetch(`/api/pedidos/${pedidoId}`, {
         method: "PATCH",
@@ -205,7 +222,7 @@ export default function PedidosPage() {
 
       const pedidoActualizado: Pedido = await res.json();
 
-      if (nuevoEstado === "COMPLETADO" || nuevoEstado === "CANCELADO") {
+      if (nuevoEstado === "CANCELADO") {
         setPedidos(pedidos.filter((p) => p.id !== pedidoId));
         mostrarNotificacion(
           `Pedido #${pedidoId} marcado como ${nuevoEstado}.`,
@@ -219,6 +236,12 @@ export default function PedidosPage() {
     } catch (error) {
       mostrarNotificacion("Error al actualizar el estado del pedido.", "error");
     }
+  };
+
+  const handlePagoSaldoExitoso = () => {
+    setModalPagoAbierto(false);
+    setPedidoParaCompletar(null);
+    cargarPedidos(); // Recargar lista (pedido ahora estará completado y filtrado)
   };
 
   const getEstadoColor = (estado: EstadoPedido) => {
@@ -445,7 +468,7 @@ export default function PedidosPage() {
                 </div>
               ) : pedidos.length === 0 ? (
                 <div className="text-center py-12">
-                  <div className="text-6xl mb-4">🎉</div>
+                  <PartyPopper className="w-16 h-16 mx-auto mb-4 text-blue-500" />
                   <p className="text-gray-500 text-lg">
                     ¡No hay pedidos pendientes!
                   </p>
@@ -545,6 +568,18 @@ export default function PedidosPage() {
           </div>
         </div>
       </div>
+
+      {/* Modal de Completar Pedido */}
+      <CompletarPedidoModal
+        isOpen={modalPagoAbierto}
+        onClose={() => {
+          setModalPagoAbierto(false);
+          setPedidoParaCompletar(null);
+        }}
+        pedido={pedidoParaCompletar}
+        onPagoExitoso={handlePagoSaldoExitoso}
+        setNotificacion={mostrarNotificacion}
+      />
     </div>
   );
 }

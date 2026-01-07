@@ -65,6 +65,42 @@ body {
   animation: fade-in 0.3s ease-out forwards;
 }
 
+/* Animación iOS-style Spring (para modales y elementos interactivos) */
+@keyframes springIn {
+  0% {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-spring-in {
+  animation: springIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* Animación de shake para errores */
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-10px);
+  }
+  75% {
+    transform: translateX(10px);
+  }
+}
+
+.animate-shake {
+  animation: shake 0.4s ease-in-out;
+}
+
 @media print {
   body * {
     visibility: hidden;
