@@ -33,15 +33,8 @@ export interface VentaData {
 }
 
 export interface VentaParaRecibo {
-  total: number;
-  metodoPago: string;
-  montoRecibido: number;
-  cambio: number;
-  productos: {
-    nombre: string;
-    cantidad: number;
-    precio: number;
-  }[];
+  venta: VentaData;
+  items: CartItem[];
 }
 
 export type EstadoPedido =

@@ -105,7 +105,14 @@ export default function CompletarPedidoModal({
     setProcesando(true);
 
     try {
-      let body: any;
+      let body: {
+        descuento: number;
+        pagos: {
+          metodo: MetodoPago;
+          monto: number;
+          cambio: number;
+        }[];
+      };
 
       if (modoPagoDividido) {
         // Formato pago dividido

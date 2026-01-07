@@ -119,7 +119,15 @@ export default function PaymentModal({
     setEstado("loading");
 
     try {
-      let body: any;
+      let body: {
+        cartItems: { productoId: number; cantidad: number }[];
+        descuento: number;
+        payment: {
+          metodo?: MetodoPago;
+          montoRecibido?: number;
+          pagos?: PagoInput[];
+        };
+      };
 
       if (modoPagoDividido) {
         // Formato nuevo: pagos divididos
