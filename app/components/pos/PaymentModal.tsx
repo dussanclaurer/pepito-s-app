@@ -185,11 +185,11 @@ export default function PaymentModal({
       onClick={onClose}
     >
       <div
-        className="backdrop-blur-2xl bg-white/95 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-white/20"
+        className="backdrop-blur-2xl bg-cyan-50/98 sm:bg-white/95 rounded-none sm:rounded-2xl shadow-2xl w-full h-full sm:h-auto sm:max-w-2xl sm:max-h-[90vh] overflow-y-auto border-0 sm:border border-cyan-200/50 sm:border-white/20"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
-          <h2 className="text-2xl font-bold text-gray-800">Procesar Pago</h2>
+        <div className="p-4 sm:p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Procesar Pago</h2>
         </div>
 
         <div className="p-6 space-y-6">

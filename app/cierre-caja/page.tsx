@@ -16,6 +16,10 @@ interface ReporteCierre {
     totalVentas: number;
     totalAnticipos: number;
   };
+  usuario?: {
+    nombre: string;
+    rol: string;
+  };
   totalDescuentos: number;
   productosVendidos: {
     nombre: string;
@@ -94,6 +98,11 @@ export default function CierreCajaPage() {
             
             <div className="text-center mb-6">
               <h2 className="text-2xl font-bold text-gray-900 print:text-black">Reporte de Cierre de Caja</h2>
+              {reporte.usuario && reporte.usuario.rol === 'CAJERO' && (
+                <p className="text-md text-gray-700 print:text-black mt-1">
+                  Usuario: <span className="font-semibold">{reporte.usuario.nombre}</span>
+                </p>
+              )}
               <p className="text-lg text-gray-700 print:text-black">
                 Fecha: <span className="font-semibold">{reporte.fechaReporte}</span>
               </p>

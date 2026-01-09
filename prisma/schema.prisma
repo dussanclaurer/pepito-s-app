@@ -59,6 +59,10 @@ model Venta {
   total    Float    // subtotal - descuento
   creadoEn DateTime @default(now())
 
+  // Relación con el usuario vendedor
+  vendedorId String?
+  vendedor   User?   @relation(fields: [vendedorId], references: [id])
+
   // Campos de Pagos DEPRECADOS (mantener por compatibilidad con ventas antiguas)
   metodoPago    MetodoPago @default(EFECTIVO) 
   montoRecibido Float      @default(0)        
@@ -115,6 +119,10 @@ model Pedido {
   creadoEn      DateTime     @default(now())
   actualizadoEn DateTime     @updatedAt
 
+  // Relación con el usuario vendedor
+  vendedorId String?
+  vendedor   User?   @relation(fields: [vendedorId], references: [id])
+
   clienteId Int
   cliente   Cliente @relation(fields: [clienteId], references: [id])
   
@@ -143,6 +151,10 @@ model User {
   
   password      String?   
   role          Role      @default(CAJERO) 
+
+  // Relaciones inversas para ventas y pedidos
+  ventas        Venta[]
+  pedidos       Pedido[]
 
   accounts      Account[]
   sessions      Session[]

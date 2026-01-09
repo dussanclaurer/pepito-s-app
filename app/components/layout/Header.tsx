@@ -19,7 +19,9 @@ import {
   TrendingUp, 
   Wallet,
   ChevronDown,
-  LogOut
+  LogOut,
+  Menu,
+  X
 } from "lucide-react";
 
 type UserWithRole = { role?: Role };
@@ -31,6 +33,7 @@ export default function Header() {
   const [ventasDropdownOpen, setVentasDropdownOpen] = useState(false);
   const [adminDropdownOpen, setAdminDropdownOpen] = useState(false);
   const [reportesDropdownOpen, setReportesDropdownOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   const ventasRef = useRef<HTMLDivElement>(null);
   const adminRef = useRef<HTMLDivElement>(null);
@@ -91,9 +94,22 @@ export default function Header() {
           </div>
 
           {/* Info de Usuario y Navegación */}
-          <div className="flex items-center space-x-6">
-            {/* Navegación */}
-            <nav className="flex space-x-2">
+          <div className="flex items-center space-x-4">
+            {/* Botón Hamburguesa - Solo Mobile */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 rounded-lg hover:bg-cyan-200/50 transition-colors"
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? (
+                <X className="w-6 h-6 text-gray-800" />
+              ) : (
+                <Menu className="w-6 h-6 text-gray-800" />
+              )}
+            </button>
+
+            {/* Navegación Desktop - Oculta en Mobile */}
+            <nav className="hidden md:flex space-x-2">
               {/* Dropdown: Ventas */}
               <div className="relative" ref={ventasRef}>
                 <button
@@ -261,6 +277,118 @@ export default function Header() {
             </div>
           </div>
         </div>
+
+        {/* Menú Móvil - Drawer que se desliza desde arriba */}
+        {mobileMenuOpen && (
+          <div className="md:hidden absolute top-full left-0 right-0 backdrop-blur-xl bg-cyan-50/98 shadow-2xl border-t border-cyan-200/50 overflow-y-auto max-h-screen animate-fade-in">
+            <nav className="flex flex-col p-4 space-y-2">
+              {/* Ventas */}
+              <button
+                onClick={() => {
+                  router.push("/pos");
+                  setMobileMenuOpen(false);
+                }}
+                className="flex items-center gap-3 w-full text-left px-4 py-4 rounded-xl hover:bg-cyan-200/50 transition-all text-gray-800 font-semibold touch-manipulation"
+              >
+                <Store className="w-5 h-5" />
+                Punto de Venta
+              </button>
+
+              <button
+                onClick={() => {
+                  router.push("/pedidos");
+                  setMobileMenuOpen(false);
+                }}
+                className="flex items-center gap-3 w-full text-left px-4 py-4 rounded-xl hover:bg-cyan-200/50 transition-all text-gray-800 font-semibold touch-manipulation"
+              >
+                <ClipboardList className="w-5 h-5" />
+                Pedidos
+              </button>
+
+              {/* Admin Section */}
+              {userRole === Role.ADMIN && (
+                <>
+                  <div className="border-t border-cyan-200/50 my-2"></div>
+                  
+                  <button
+                    onClick={() => {
+                      router.push("/inventario");
+                      setMobileMenuOpen(false);
+                    }}
+                    className="flex items-center gap-3 w-full text-left px-4 py-4 rounded-xl hover:bg-cyan-200/50 transition-all text-gray-800 font-semibold touch-manipulation"
+                  >
+                    <Package className="w-5 h-5" />
+                    Inventario
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      router.push("/admin/usuarios");
+                      setMobileMenuOpen(false);
+                    }}
+                    className="flex items-center gap-3 w-full text-left px-4 py-4 rounded-xl hover:bg-cyan-200/50 transition-all text-gray-800 font-semibold touch-manipulation"
+                  >
+                    <Users className="w-5 h-5" />
+                    Usuarios
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      router.push("/historial-ventas");
+                      setMobileMenuOpen(false);
+                    }}
+                    className="flex items-center gap-3 w-full text-left px-4 py-4 rounded-xl hover:bg-cyan-200/50 transition-all text-gray-800 font-semibold touch-manipulation"
+                  >
+                    <ScrollText className="w-5 h-5" />
+                    Historial
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      router.push("/reportes");
+                      setMobileMenuOpen(false);
+                    }}
+                    className="flex items-center gap-3 w-full text-left px-4 py-4 rounded-xl hover:bg-cyan-200/50 transition-all text-gray-800 font-semibold touch-manipulation"
+                  >
+                    <TrendingUp className="w-5 h-5" />
+                    Dashboard
+                  </button>
+                </>
+              )}
+
+              <div className="border-t border-cyan-200/50 my-2"></div>
+
+              <button
+                onClick={() => {
+                  router.push("/cierre-caja");
+                  setMobileMenuOpen(false);
+                }}
+                className="flex items-center gap-3 w-full text-left px-4 py-4 rounded-xl hover:bg-cyan-200/50 transition-all text-gray-800 font-semibold touch-manipulation"
+              >
+                <Wallet className="w-5 h-5" />
+                Cierre de Caja
+              </button>
+
+              {/* Usuario y Cerrar Sesión */}
+              <div className="border-t border-cyan-200/50 my-2"></div>
+              
+              <div className="px-4 py-3 bg-blue-100/50 rounded-xl">
+                <p className="font-semibold text-gray-800">{session.user?.name}</p>
+                <span className="inline-block text-xs font-medium bg-blue-200 text-blue-800 px-2 py-1 rounded-full mt-1">
+                  {(session.user as UserWithRole)?.role}
+                </span>
+              </div>
+
+              <button
+                onClick={() => signOut({ callbackUrl: "/login" })}
+                className="flex items-center gap-3 w-full text-left px-4 py-4 rounded-xl bg-red-500 text-white font-semibold hover:bg-red-600 transition-all touch-manipulation"
+              >
+                <LogOut className="w-5 h-5" />
+                Salir
+              </button>
+            </nav>
+          </div>
+        )}
       </div>
     </header>
   );

@@ -2,6 +2,8 @@
 
 import { NextResponse } from 'next/server';
 import { PrismaClient, MetodoPago } from '@prisma/client';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 const prisma = new PrismaClient();
 
@@ -30,6 +32,9 @@ interface VentaRequest {
 
 export async function POST(request: Request) {
   try {
+    // Obtener el usuario autenticado
+    const session = await getServerSession(authOptions);
+    const vendedorId = session?.user?.id || null;
     const { cartItems, payment, descuento = 0 }: VentaRequest = await request.json();
 
     if (!cartItems || cartItems.length === 0) {
@@ -130,6 +135,7 @@ export async function POST(request: Request) {
           subtotal: subtotal,
           descuento: descuento,
           total: totalFinal,
+          vendedorId: vendedorId, // Registrar quién hizo la venta
           // Campos deprecados (mantener el primer pago para compatibilidad)
           metodoPago: pagosArray[0].metodo,
           montoRecibido: pagosArray[0].monto,

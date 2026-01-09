@@ -150,10 +150,10 @@ export default function ReceiptModal({
       {/* --- 1. EL MODAL VISUAL (se oculta al imprimir) --- */}
       <div className="print:hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex justify-center items-center p-4">
         {/* Contenido del Modal */}
-        <div className="backdrop-blur-xl bg-white/95 rounded-2xl shadow-2xl w-full max-w-sm border border-white/20">
+        <div className="backdrop-blur-xl bg-cyan-50/98 sm:bg-white/95 rounded-none sm:rounded-2xl shadow-2xl w-full h-full sm:h-auto sm:max-w-sm border-0 sm:border border-cyan-200/50 sm:border-white/20">
           {/* Cabecera del Modal */}
-          <div className="p-6 border-b border-gray-200 flex justify-between items-center">
-            <h2 className="text-2xl font-bold text-gray-800">Venta Exitosa</h2>
+          <div className="p-4 sm:p-6 border-b border-gray-200 flex justify-between items-center">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Venta Exitosa</h2>
             <button
               onClick={onClose}
               className="text-gray-400 hover:text-gray-600"

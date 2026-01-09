@@ -136,7 +136,7 @@ export default function POSPage() {
 
       {/* --- Contenedor de Notificación --- */}
       {notificacion && (
-        <div className="fixed top-24 right-6 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-slide-in-out">
+        <div className="fixed top-20 right-4 left-4 sm:left-auto sm:right-6 sm:w-auto bg-red-600 text-white px-4 sm:px-6 py-3 rounded-lg shadow-lg z-50 animate-slide-in-out text-center sm:text-left">
           {notificacion}
         </div>
       )}
@@ -146,9 +146,9 @@ export default function POSPage() {
           {/* Columna de Productos (Catálogo) */}
           <div className="lg:col-span-2">
             <div className="bg-white rounded-2xl shadow-xl p-6 border border-blue-100">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-800">Catálogo de Productos</h2>
-                <div className="relative w-64">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Catálogo de Productos</h2>
+                <div className="relative w-full sm:w-64">
                   <input
                     type="text"
                     value={busqueda}
@@ -167,7 +167,7 @@ export default function POSPage() {
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-h-[70vh] overflow-y-auto pr-2">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 max-h-[50vh] sm:max-h-[70vh] overflow-y-auto pr-2">
                   {productosFiltrados.map(producto => (
                     <div
                       key={producto.id}
@@ -201,13 +201,13 @@ export default function POSPage() {
 
           {/* Columna del Carrito */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-2xl shadow-xl p-6 border border-blue-100 h-full flex flex-col">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-800">Pedido Actual</h2>
+            <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-6 border border-blue-100 h-full flex flex-col">
+              <div className="flex items-center justify-between mb-4 sm:mb-6">
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Pedido Actual</h2>
                 {carrito.length > 0 && (
                   <button
                     onClick={limpiarCarrito}
-                    className="text-sm text-red-600 hover:text-red-700 font-medium px-3 py-1 rounded-lg hover:bg-red-50 transition-colors"
+                    className="text-xs sm:text-sm text-red-600 hover:text-red-700 font-medium px-2 sm:px-3 py-1 rounded-lg hover:bg-red-50 transition-colors"
                   >
                     Limpiar
                   </button>

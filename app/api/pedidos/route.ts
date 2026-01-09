@@ -2,6 +2,8 @@
 
 import { NextResponse } from "next/server";
 import { PrismaClient, Prisma, MetodoPago } from "@prisma/client";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 const prisma = new PrismaClient();
 
@@ -35,6 +37,10 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    // Obtener el usuario autenticado
+    const session = await getServerSession(authOptions);
+    const vendedorId = session?.user?.id || null;
+    
     const body = await request.json();
     const { clienteId, detalles, fechaEntrega, montoTotal, anticipo, metodoPagoAnticipo } = body;
 
@@ -82,6 +88,7 @@ export async function POST(request: Request) {
         montoTotal: totalNum,
         anticipo: anticipoNum,
         metodoPagoAnticipo: metodoPagoAnticipo || MetodoPago.EFECTIVO,
+        vendedorId: vendedorId, // Registrar quién creó el pedido
       },
       include: {
         cliente: true,

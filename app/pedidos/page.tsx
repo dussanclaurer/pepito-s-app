@@ -165,13 +165,23 @@ export default function PedidosPage() {
         throw new Error("El monto total debe ser mayor a cero.");
       }
 
+      // Convertir fechaEntrega a ISO string con zona horaria de Bolivia
+      // datetime-local devuelve formato "2026-01-09T15:30" sin zona horaria
+      // Lo interpretamos como hora local de Bolivia y lo convertimos a UTC
+      const fechaLocal = new Date(fechaEntrega);
+      // Obtener el offset de Bolivia (-4 horas = -240 minutos)
+      const offsetBolivia = -240; // GMT-4
+      // Ajustar la fecha para que represente la hora local de Bolivia en UTC
+      const fechaUTC = new Date(fechaLocal.getTime() - (offsetBolivia * 60 * 1000));
+      const fechaEntregaISO = fechaUTC.toISOString();
+
       const resPedido = await fetch("/api/pedidos", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           clienteId: clienteIdParaPedido,
           detalles,
-          fechaEntrega,
+          fechaEntrega: fechaEntregaISO,
           montoTotal,
           anticipo,
           metodoPagoAnticipo,
@@ -266,7 +276,7 @@ export default function PedidosPage() {
       {/* --- Contenedor de Notificación --- */}
       {notificacion && (
         <div
-          className={`fixed top-24 right-6 px-6 py-3 rounded-lg shadow-lg z-50 animate-slide-in-out
+          className={`fixed top-20 right-4 left-4 sm:left-auto sm:right-6 sm:w-auto px-4 sm:px-6 py-3 rounded-lg shadow-lg z-50 animate-slide-in-out text-center sm:text-left
           ${
             notificacion.tipo === "exito"
               ? "bg-green-600 text-white"
@@ -278,15 +288,15 @@ export default function PedidosPage() {
       )}
 
       {/* --- Contenido Principal --- */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* === Columna 1: Formulario de Nuevo Pedido === */}
           <div className="lg:col-span-1">
             <form
               onSubmit={handleCrearPedido}
-              className="bg-white rounded-2xl shadow-xl p-6 border border-blue-100 space-y-6"
+              className="bg-white rounded-2xl shadow-xl p-4 sm:p-6 border border-blue-100 space-y-4 sm:space-y-6"
             >
-              <h2 className="text-2xl font-bold text-gray-800">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-800">
                 Registrar Pedido
               </h2>
 
@@ -305,12 +315,12 @@ export default function PedidosPage() {
                       value={telefonoBusqueda}
                       onChange={(e) => setTelefonoBusqueda(e.target.value)}
                       placeholder="Buscar por teléfono..."
-                      className="w-full px-4 py-3 border border-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-900"
+                      className="w-full px-4 py-3 sm:py-3 border border-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-900 text-base"
                     />
                     <button
                       type="button"
                       onClick={handleBuscarCliente}
-                      className="bg-blue-600 text-white px-4 rounded-xl font-semibold hover:bg-blue-700"
+                      className="bg-blue-600 text-white px-4 py-3 sm:px-4 sm:py-3 rounded-xl font-semibold hover:bg-blue-700 whitespace-nowrap"
                     >
                       Buscar
                     </button>

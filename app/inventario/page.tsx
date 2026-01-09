@@ -36,6 +36,7 @@ export default function InventarioPage() {
   const [cargando, setCargando] = useState(true);
   const [modalAbierto, setModalAbierto] = useState(false);
   const [productoAEditar, setProductoAEditar] = useState<Producto | null>(null);
+  const [categoriaFiltro, setCategoriaFiltro] = useState<number | 'todas'>('todas');
   const router = useRouter();
 
   const cargarDatos = async () => {
@@ -152,13 +153,18 @@ export default function InventarioPage() {
     }
   };
 
+  // Filtrar productos por categoría
+  const productosFiltrados = categoriaFiltro === 'todas' 
+    ? productos 
+    : productos.filter(p => p.categoriaId === categoriaFiltro);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-red-50">
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* Columna de Formularios */}
-          <div className="lg:col-span-1 space-y-6">
+          <div className="lg:col-span-1 space-y-4 sm:space-y-6">
             {/* Formulario de Categorías */}
             <div className="bg-white rounded-2xl shadow-xl p-6 border border-blue-100">
               <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
@@ -245,16 +251,28 @@ export default function InventarioPage() {
 
           {/* Tabla de Productos */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-2xl shadow-xl p-6 border border-blue-100">
-              <div className="flex items-center justify-between mb-6">
+            <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-6 border border-blue-100">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-3">
                 <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
                   <span className="bg-blue-100 text-blue-600 p-2 rounded-lg">
                     <ClipboardList className="w-5 h-5" />
                   </span>
                   Lista de Productos
                 </h2>
-                <div className="text-sm text-gray-500">
-                  {productos.length} producto{productos.length !== 1 ? 's' : ''} en total
+                <div className="flex items-center gap-4">
+                  <select 
+                    value={categoriaFiltro}
+                    onChange={(e) => setCategoriaFiltro(e.target.value === 'todas' ? 'todas' : parseInt(e.target.value))}
+                    className="px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-900"
+                  >
+                    <option value="todas">Todas las categorías</option>
+                    {categorias.map(cat => (
+                      <option key={cat.id} value={cat.id}>{cat.nombre}</option>
+                    ))}
+                  </select>
+                  <div className="text-sm text-gray-500">
+                    {productosFiltrados.length} producto{productosFiltrados.length !== 1 ? 's' : ''}
+                  </div>
                 </div>
               </div>
 
@@ -263,20 +281,22 @@ export default function InventarioPage() {
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
                 </div>
               ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full">
+                <div className="overflow-x-auto -mx-4 sm:mx-0">
+                  <div className="inline-block min-w-full align-middle">
+                    <div className="overflow-hidden">
+                      <table className="min-w-full">
                     <thead>
                       <tr className="bg-gradient-to-r from-blue-50 to-red-50 border-b border-blue-200">
-                        <th className="p-4 font-semibold text-gray-700 text-left rounded-l-xl">Producto</th>
+                        <th className="p-4 font-semibold text-gray-700 text-left">Producto</th>
                         <th className="p-4 font-semibold text-gray-700 text-left">Categoría</th>
                         <th className="p-4 font-semibold text-gray-700 text-left">Precio</th>
                         <th className="p-4 font-semibold text-gray-700 text-left">Stock</th>
-                        <th className="p-4 font-semibold text-gray-700 text-left">Vendidos</th>
+                        <th className="p-4 font-semibold text-gray-700 text-left">Vendidos Hoy</th>
                         <th className="p-4 font-semibold text-gray-700 text-left rounded-r-xl">Acciones</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {productos.map((producto, index) => (
+                      {productosFiltrados.map((producto, index) => (
                         <tr 
                           key={producto.id} 
                           className={`border-b border-gray-100 hover:bg-blue-50 transition-colors ${
@@ -340,15 +360,22 @@ export default function InventarioPage() {
                     </tbody>
                   </table>
                   
-                  {productos.length === 0 && (
+                  {productosFiltrados.length === 0 && (
                     <div className="text-center py-12">
                       <Package className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-                      <p className="text-gray-500 text-lg">No hay productos registrados</p>
+                      <p className="text-gray-500 text-lg">
+                        {categoriaFiltro === 'todas' ? 'No hay productos registrados' : 'No hay productos en esta categoría'}
+                      </p>
                       <p className="text-gray-400 text-sm mt-2">
-                        Agrega tu primer producto usando el formulario
+                        {categoriaFiltro === 'todas' 
+                          ? 'Agrega tu primer producto usando el formulario'
+                          : 'Prueba con otra categoría o agrega nuevos productos'
+                        }
                       </p>
                     </div>
                   )}
+                    </div>
+                  </div>
                 </div>
               )}
             </div>

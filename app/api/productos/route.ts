@@ -4,6 +4,8 @@ import { NextResponse, NextRequest } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getToken } from 'next-auth/jwt'; 
 import { Role } from '@prisma/client'; 
+import { toZonedTime } from 'date-fns-tz';
+import { startOfDay, endOfDay } from 'date-fns';
 
 async function isAdmin(req: NextRequest) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
@@ -12,10 +14,24 @@ async function isAdmin(req: NextRequest) {
 
 export async function GET() {
   try {
+    // Obtener inicio y fin del día actual
+    const timeZone = 'America/La_Paz';
+    const ahora = toZonedTime(new Date(), timeZone);
+    const inicioDelDia = startOfDay(ahora);
+    const finDelDia = endOfDay(ahora);
+
     const productos = await prisma.producto.findMany({
       include: {
         categoria: true,
         ventas: {
+          where: {
+            venta: {
+              creadoEn: {
+                gte: inicioDelDia,
+                lte: finDelDia,
+              },
+            },
+          },
           select: {
             cantidad: true,
           },
@@ -26,7 +42,7 @@ export async function GET() {
       },
     });
 
-    // Calculate total quantity sold for each product
+    // Calculate total quantity sold for each product (solo hoy)
     const productosConVentas = productos.map(producto => {
       const cantidadVendida = producto.ventas.reduce((total, venta) => total + venta.cantidad, 0);
       const { ventas, ...productoSinVentas } = producto;

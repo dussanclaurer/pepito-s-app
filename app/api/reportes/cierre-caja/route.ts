@@ -4,55 +4,81 @@ import { NextResponse } from 'next/server';
 import { MetodoPago, PrismaClient } from '@prisma/client';
 import { toZonedTime } from 'date-fns-tz';
 import { startOfDay, endOfDay } from 'date-fns';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 const prisma = new PrismaClient();
 
 export async function GET(request: Request) {
   try {
+    // Obtener el usuario autenticado
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user) {
+      return NextResponse.json({ message: "No autorizado" }, { status: 401 });
+    }
+
+    const userId = session.user.id;
+    const userRole = session.user.role;
+    const userName = session.user.name;
     const timeZone = 'America/La_Paz';
     const ahora = toZonedTime(new Date(), timeZone);
     const inicioDelDia = startOfDay(ahora);
     const finDelDia = endOfDay(ahora);
 
-    // Obtener totales de ventas desde PagoDetalle (nueva forma)
-    const totalesVentasPorMetodo = await prisma.pagoDetalle.groupBy({
-      by: ['metodoPago'],
-      where: {
-        venta: {
-          creadoEn: {
-            gte: inicioDelDia, 
-            lte: finDelDia,     
-          },
-        },
+    // Determinar filtro según rol
+    const ventaFilter: any = {
+      creadoEn: {
+        gte: inicioDelDia, 
+        lte: finDelDia,     
       },
+    };
+
+    // Si es cajero, filtrar solo sus ventas
+    if (userRole === 'CAJERO') {
+      ventaFilter.vendedorId = userId;
+    }
+    // Si es ADMIN, no agregar filtro adicional (todas las ventas)
+
+    const totalesVentasPorMetodo = await prisma.venta.groupBy({
+      by: ['metodoPago'],
+      where: ventaFilter,
       _sum: {
-        monto: true, 
+        total: true, 
       },
     });
 
+    // Filtro para pedidos (anticipos)
+    const pedidoFilter: any = {
+      creadoEn: {
+        gte: inicioDelDia,
+        lte: finDelDia,
+      },
+      anticipo: {
+        gt: 0,
+      },
+    };
+
+    // Si es cajero, filtrar solo sus pedidos
+    if (userRole === 'CAJERO') {
+      pedidoFilter.vendedorId = userId;
+    }
+
     const anticiposPorMetodo = await prisma.pedido.groupBy({
       by: ['metodoPagoAnticipo'],
-      where: {
-        creadoEn: {
-          gte: inicioDelDia,
-          lte: finDelDia,
-        },
-        anticipo: {
-          gt: 0,
-        },
-      },
+      where: pedidoFilter,
       _sum: {
         anticipo: true,
       },
     });
-
+    
     const reporteFinal = new Map<MetodoPago, number>();
     reporteFinal.set(MetodoPago.EFECTIVO, 0);
     reporteFinal.set(MetodoPago.QR, 0);
 
     for (const item of totalesVentasPorMetodo) {
       const montoActual = reporteFinal.get(item.metodoPago) || 0;
-      reporteFinal.set(item.metodoPago, montoActual + (item._sum.monto || 0));
+      reporteFinal.set(item.metodoPago, montoActual + (item._sum.total || 0));
     }
     
     for (const item of anticiposPorMetodo) {
@@ -87,19 +113,14 @@ export async function GET(request: Request) {
       total,
     })).sort((a, b) => a.metodoPago.localeCompare(b.metodoPago));
 
-    const totalGeneralVentas = totalesVentasPorMetodo.reduce((acc, item) => acc + (item._sum.monto || 0), 0);
+    const totalGeneralVentas = totalesVentasPorMetodo.reduce((acc, item) => acc + (item._sum.total || 0), 0);
     const totalAnticipos = anticiposPorMetodo.reduce((acc, item) => acc + (item._sum.anticipo || 0), 0);
     const totalPagosSaldo = pagosSaldoPedidos.reduce((acc, item) => acc + (item._sum.monto || 0), 0);
     const totalGeneral = totalGeneralVentas + totalAnticipos + totalPagosSaldo;
     
     // Obtener total de descuentos aplicados hoy (ventas + pedidos)
     const descuentosHoy = await prisma.venta.aggregate({
-      where: {
-        creadoEn: {
-          gte: inicioDelDia,
-          lte: finDelDia,
-        },
-      },
+      where: ventaFilter,
       _sum: {
         descuento: true,
       },
@@ -107,10 +128,7 @@ export async function GET(request: Request) {
 
     const descuentosPedidos = await prisma.pedido.aggregate({
       where: {
-        creadoEn: {
-          gte: inicioDelDia,
-          lte: finDelDia,
-        },
+        ...pedidoFilter,
         estado: "COMPLETADO",
       },
       _sum: {
@@ -120,16 +138,11 @@ export async function GET(request: Request) {
 
     const totalDescuentos = (descuentosHoy._sum.descuento || 0) + (descuentosPedidos._sum.descuentoSaldo || 0);
     
-    // Get products sold today with breakdown
+    // Get products sold today with breakdown (filtrado por usuario)
     const productosVendidosHoy = await prisma.ventaProducto.groupBy({
       by: ['productoId'],
       where: {
-        venta: {
-          creadoEn: {
-            gte: inicioDelDia,
-            lte: finDelDia,
-          },
-        },
+        venta: ventaFilter,
       },
       _sum: {
         cantidad: true,
@@ -173,6 +186,10 @@ export async function GET(request: Request) {
       desglose: {
         totalVentas: totalGeneralVentas,
         totalAnticipos: totalAnticipos,
+      },
+      usuario: {
+        nombre: userName,
+        rol: userRole,
       },
       totalDescuentos: totalDescuentos,
       productosVendidos,
