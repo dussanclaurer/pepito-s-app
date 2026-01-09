@@ -1,11 +1,11 @@
 // app/api/reportes/cierre-caja/route.ts
 
 import { NextResponse } from 'next/server';
-import { MetodoPago, PrismaClient } from '@prisma/client';
+import { MetodoPago, Prisma, PrismaClient } from '@prisma/client';
 import { toZonedTime } from 'date-fns-tz';
 import { startOfDay, endOfDay } from 'date-fns';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth';
 
 const prisma = new PrismaClient();
 
@@ -27,7 +27,7 @@ export async function GET(request: Request) {
     const finDelDia = endOfDay(ahora);
 
     // Determinar filtro según rol
-    const ventaFilter: any = {
+    const ventaFilter: Prisma.VentaWhereInput = {
       creadoEn: {
         gte: inicioDelDia, 
         lte: finDelDia,     
@@ -49,7 +49,7 @@ export async function GET(request: Request) {
     });
 
     // Filtro para pedidos (anticipos)
-    const pedidoFilter: any = {
+    const pedidoFilter: Prisma.PedidoWhereInput = {
       creadoEn: {
         gte: inicioDelDia,
         lte: finDelDia,
