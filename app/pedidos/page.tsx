@@ -20,17 +20,18 @@ const estadosDisponibles: EstadoPedido[] = [
 
 const formatFechaEntrega = (isoString: string) => {
   const fecha = new Date(isoString);
-  const opciones: Intl.DateTimeFormatOptions = {
-    day: "numeric",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
+  
+  // Formatear en zona horaria de Bolivia
+  const fechaBolivia = fecha.toLocaleString('es-BO', {
+    timeZone: 'America/La_Paz',
+    day: 'numeric',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
     hour12: false,
-  };
-  return new Intl.DateTimeFormat("es-BO", {
-    ...opciones,
-    timeZone: "America/La_Paz",
-  }).format(fecha);
+  });
+  
+  return fechaBolivia;
 };
 
 const formatParaInput = (date: Date): string => {
