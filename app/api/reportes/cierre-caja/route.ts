@@ -2,8 +2,6 @@
 
 import { NextResponse } from 'next/server';
 import { MetodoPago, Prisma, PrismaClient } from '@prisma/client';
-import { startOfDay, endOfDay } from 'date-fns';
-import { toZonedTime, fromZonedTime } from 'date-fns-tz';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 
@@ -22,15 +20,28 @@ export async function GET(request: Request) {
     const userRole = session.user.role;
     const userName = session.user.name;
     
-    // Calcular inicio y fin del día en zona horaria local
+    // Calcular inicio y fin del día en zona horaria de Bolivia
     const timeZone = 'America/La_Paz';
-    const ahoraLocal = toZonedTime(new Date(), timeZone);
-    const inicioDelDiaLocal = startOfDay(ahoraLocal);
-    const finDelDiaLocal = endOfDay(ahoraLocal);
     
-    // Convertir a UTC para consultas a la base de datos
-    const inicioDelDia = fromZonedTime(inicioDelDiaLocal, timeZone);
-    const finDelDia = fromZonedTime(finDelDiaLocal, timeZone);
+    // Obtener la fecha/hora actual en UTC
+    const ahora = new Date();
+    
+    // Obtener la fecha en zona horaria de Bolivia como string
+    const dateStringBolivia = ahora.toLocaleString('en-US', { 
+      timeZone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    });
+    
+    // Parsear para obtener año/mes/día en Bolivia
+    const [month, day, year] = dateStringBolivia.split('/');
+    
+    // Crear inicio y fin del día en UTC usando offset de Bolivia (GMT-4)
+    // Medianoche en Bolivia = 04:00 UTC del mismo día
+    // 23:59:59 en Bolivia = 03:59:59 UTC del día siguiente
+    const inicioDelDia = new Date(`${year}-${month}-${day}T00:00:00-04:00`);
+    const finDelDia = new Date(`${year}-${month}-${day}T23:59:59-04:00`);
 
     // Determinar filtro según rol
     const ventaFilter: Prisma.VentaWhereInput = {
