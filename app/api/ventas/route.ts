@@ -135,6 +135,7 @@ export async function POST(request: Request) {
           subtotal: subtotal,
           descuento: descuento,
           total: totalFinal,
+          creadoEn: new Date(), // Forzar timestamp en UTC
           vendedorId: vendedorId, // Registrar quién hizo la venta
           // Campos deprecados (mantener el primer pago para compatibilidad)
           metodoPago: pagosArray[0].metodo,

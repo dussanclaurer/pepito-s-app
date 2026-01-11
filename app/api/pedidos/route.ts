@@ -85,6 +85,7 @@ export async function POST(request: Request) {
         clienteId: Number(clienteId),
         detalles: detalles,
         fechaEntrega: new Date(fechaEntrega),
+        creadoEn: new Date(), // Forzar timestamp en UTC
         montoTotal: totalNum,
         anticipo: anticipoNum,
         metodoPagoAnticipo: metodoPagoAnticipo || MetodoPago.EFECTIVO,
