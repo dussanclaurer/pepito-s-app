@@ -2,8 +2,8 @@
 
 import { NextResponse } from 'next/server';
 import { MetodoPago, Prisma, PrismaClient } from '@prisma/client';
-import { toZonedTime } from 'date-fns-tz';
 import { startOfDay, endOfDay } from 'date-fns';
+import { toZonedTime, fromZonedTime } from 'date-fns-tz';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 
@@ -21,10 +21,16 @@ export async function GET(request: Request) {
     const userId = session.user.id;
     const userRole = session.user.role;
     const userName = session.user.name;
+    
+    // Calcular inicio y fin del día en zona horaria local
     const timeZone = 'America/La_Paz';
-    const ahora = toZonedTime(new Date(), timeZone);
-    const inicioDelDia = startOfDay(ahora);
-    const finDelDia = endOfDay(ahora);
+    const ahoraLocal = toZonedTime(new Date(), timeZone);
+    const inicioDelDiaLocal = startOfDay(ahoraLocal);
+    const finDelDiaLocal = endOfDay(ahoraLocal);
+    
+    // Convertir a UTC para consultas a la base de datos
+    const inicioDelDia = fromZonedTime(inicioDelDiaLocal, timeZone);
+    const finDelDia = fromZonedTime(finDelDiaLocal, timeZone);
 
     // Determinar filtro según rol
     const ventaFilter: Prisma.VentaWhereInput = {

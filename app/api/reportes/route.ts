@@ -2,7 +2,7 @@
 
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import { toZonedTime } from "date-fns-tz";
+import { toZonedTime, fromZonedTime } from "date-fns-tz";
 import {
   startOfDay,
   endOfDay,
@@ -25,24 +25,28 @@ export async function GET(request: NextRequest) {
     const now = new Date();
     const zonedNow = toZonedTime(now, timeZone);
 
-    let fechaInicio: Date;
-    let fechaFin: Date;
+    let fechaInicioLocal: Date;
+    let fechaFinLocal: Date;
 
     switch (periodo) {
       case "semana":
-        fechaInicio = startOfWeek(zonedNow);
-        fechaFin = endOfWeek(zonedNow);
+        fechaInicioLocal = startOfWeek(zonedNow);
+        fechaFinLocal = endOfWeek(zonedNow);
         break;
       case "mes":
-        fechaInicio = startOfMonth(zonedNow);
-        fechaFin = endOfMonth(zonedNow);
+        fechaInicioLocal = startOfMonth(zonedNow);
+        fechaFinLocal = endOfMonth(zonedNow);
         break;
       case "dia":
       default:
-        fechaInicio = startOfDay(zonedNow);
-        fechaFin = endOfDay(zonedNow);
+        fechaInicioLocal = startOfDay(zonedNow);
+        fechaFinLocal = endOfDay(zonedNow);
         break;
     }
+
+    // Convertir de hora local de Bolivia a UTC para consultas a la base de datos
+    const fechaInicio = fromZonedTime(fechaInicioLocal, timeZone);
+    const fechaFin = fromZonedTime(fechaFinLocal, timeZone);
 
     const resumenVentas = await prisma.venta.aggregate({
       where: {

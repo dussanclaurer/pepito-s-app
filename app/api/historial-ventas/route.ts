@@ -2,7 +2,7 @@
 
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import { toZonedTime } from "date-fns-tz";
+import { toZonedTime, fromZonedTime } from "date-fns-tz";
 import {
   startOfDay,
   endOfDay,
@@ -19,26 +19,30 @@ export async function GET(request: Request) {
   const periodo = searchParams.get("periodo") || "dia";
   const timeZone = "America/La_Paz";
 
-  const ahora = toZonedTime(new Date(), timeZone);
+  const ahoraLocal = toZonedTime(new Date(), timeZone);
 
-  let fechaInicio: Date;
-  let fechaFin: Date;
+  let fechaInicioLocal: Date;
+  let fechaFinLocal: Date;
 
   switch (periodo) {
     case "semana":
-      fechaInicio = startOfWeek(ahora);
-      fechaFin = endOfWeek(ahora);
+      fechaInicioLocal = startOfWeek(ahoraLocal);
+      fechaFinLocal = endOfWeek(ahoraLocal);
       break;
     case "mes":
-      fechaInicio = startOfMonth(ahora);
-      fechaFin = endOfMonth(ahora);
+      fechaInicioLocal = startOfMonth(ahoraLocal);
+      fechaFinLocal = endOfMonth(ahoraLocal);
       break;
     case "dia":
     default:
-      fechaInicio = startOfDay(ahora);
-      fechaFin = endOfDay(ahora);
+      fechaInicioLocal = startOfDay(ahoraLocal);
+      fechaFinLocal = endOfDay(ahoraLocal);
       break;
   }
+
+  // Convertir a UTC para consultas a la base de datos
+  const fechaInicio = fromZonedTime(fechaInicioLocal, timeZone);
+  const fechaFin = fromZonedTime(fechaFinLocal, timeZone);
 
   try {
     const ventas = await prisma.venta.findMany({

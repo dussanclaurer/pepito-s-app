@@ -4,8 +4,8 @@ import { NextResponse, NextRequest } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getToken } from 'next-auth/jwt'; 
 import { Role } from '@prisma/client'; 
-import { toZonedTime } from 'date-fns-tz';
 import { startOfDay, endOfDay } from 'date-fns';
+import { toZonedTime, fromZonedTime } from 'date-fns-tz';
 
 async function isAdmin(req: NextRequest) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
@@ -14,11 +14,15 @@ async function isAdmin(req: NextRequest) {
 
 export async function GET() {
   try {
-    // Obtener inicio y fin del día actual
+    // Calcular inicio y fin del día en zona horaria local
     const timeZone = 'America/La_Paz';
-    const ahora = toZonedTime(new Date(), timeZone);
-    const inicioDelDia = startOfDay(ahora);
-    const finDelDia = endOfDay(ahora);
+    const ahoraLocal = toZonedTime(new Date(), timeZone);
+    const inicioDelDiaLocal = startOfDay(ahoraLocal);
+    const finDelDiaLocal = endOfDay(ahoraLocal);
+    
+    // Convertir a UTC para consultas a la base de datos
+    const inicioDelDia = fromZonedTime(inicioDelDiaLocal, timeZone);
+    const finDelDia = fromZonedTime(finDelDiaLocal, timeZone);
 
     const productos = await prisma.producto.findMany({
       include: {
