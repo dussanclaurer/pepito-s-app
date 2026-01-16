@@ -7,6 +7,9 @@ import { useRouter } from "next/navigation";
 import { Pedido, Cliente, EstadoPedido } from "@/app/types";
 import CompletarPedidoModal from "@/app/components/pedidos/CompletarPedidoModal";
 import { PartyPopper } from "lucide-react";
+import { format } from "date-fns";
+import { toZonedTime } from "date-fns-tz";
+import { es } from "date-fns/locale";
 
 type MetodoPago = "EFECTIVO" | "QR";
 
@@ -20,18 +23,13 @@ const estadosDisponibles: EstadoPedido[] = [
 
 const formatFechaEntrega = (isoString: string) => {
   const fecha = new Date(isoString);
+  const timeZone = 'America/La_Paz';
   
-  // Formatear en zona horaria de Bolivia
-  const fechaBolivia = fecha.toLocaleString('es-BO', {
-    timeZone: 'America/La_Paz',
-    day: 'numeric',
-    month: 'short',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  });
+  // Convertir de UTC a zona horaria de Bolivia
+  const fechaBolivia = toZonedTime(fecha, timeZone);
   
-  return fechaBolivia;
+  // Formatear la fecha
+  return format(fechaBolivia, "d MMM, HH:mm", { locale: es });
 };
 
 const formatParaInput = (date: Date): string => {
