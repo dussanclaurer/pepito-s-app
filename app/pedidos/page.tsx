@@ -167,14 +167,18 @@ export default function PedidosPage() {
         throw new Error("El monto total debe ser mayor a cero.");
       }
 
-      // Convertir fechaEntrega a ISO string con zona horaria de Bolivia
-      // datetime-local devuelve formato "2026-01-09T15:30" sin zona horaria
-      // Lo interpretamos como hora local de Bolivia y lo convertimos a UTC
-      const fechaLocal = new Date(fechaEntrega);
-      // Obtener el offset de Bolivia (-4 horas = -240 minutos)
-      const offsetBolivia = -240; // GMT-4
-      // Ajustar la fecha para que represente la hora local de Bolivia en UTC
-      const fechaUTC = new Date(fechaLocal.getTime() - (offsetBolivia * 60 * 1000));
+      // Convertir fechaEntrega a UTC correctamente
+      // datetime-local devuelve formato "2026-01-17T11:00" (sin zona horaria)
+      // Debemos interpretarlo como hora de Bolivia y convertir a UTC
+      
+      // Parsear manualmente la fecha
+      const [datePart, timePart] = fechaEntrega.split('T');
+      const [year, month, day] = datePart.split('-').map(Number);
+      const [hours, minutes] = timePart.split(':').map(Number);
+      
+      // Crear fecha UTC manual: Bolivia es GMT-4, entonces 11:00 Bolivia = 15:00 UTC
+      // Para convertir: hora_utc = hora_bolivia + 4
+      const fechaUTC = new Date(Date.UTC(year, month - 1, day, hours + 4, minutes));
       const fechaEntregaISO = fechaUTC.toISOString();
 
       const resPedido = await fetch("/api/pedidos", {
