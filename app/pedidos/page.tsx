@@ -19,15 +19,20 @@ const estadosDisponibles: EstadoPedido[] = [
 ];
 
 const formatFechaEntrega = (isoString: string) => {
-  const fecha = new Date(isoString);
-  return fecha.toLocaleString('es-BO', {
-    timeZone: 'America/La_Paz',
-    day: 'numeric',
-    month: 'short',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  });
+  // Convertir string ISO a Date (siempre viene en UTC desde la BD)
+  const fechaUTC = new Date(isoString);
+  
+  // Bolivia es GMT-4, entonces restamos 4 horas (4 * 60 * 60 * 1000 ms)
+  const offsetBolivia = -4 * 60 * 60 * 1000;
+  const fechaBolivia = new Date(fechaUTC.getTime() + offsetBolivia);
+  
+  // Formatear manualmente
+  const dia = fechaBolivia.getUTCDate();
+  const mes = fechaBolivia.toLocaleString('es-BO', { month: 'short', timeZone: 'UTC' });
+  const hora = fechaBolivia.getUTCHours().toString().padStart(2, '0');
+  const minuto = fechaBolivia.getUTCMinutes().toString().padStart(2, '0');
+  
+  return `${dia} ${mes}, ${hora}:${minuto}`;
 };
 
 const formatParaInput = (date: Date): string => {
