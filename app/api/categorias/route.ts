@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/db";
 
 export async function GET() {
   try {
@@ -13,7 +11,7 @@ export async function GET() {
 
     return NextResponse.json(
       { message: "Error al obtener las categorías" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -25,7 +23,7 @@ export async function POST(request: Request) {
     if (!nombre) {
       return NextResponse.json(
         { message: "El nombre de la categoría es obligatorio" },
-        { status: 400 } 
+        { status: 400 },
       );
     }
 
@@ -40,7 +38,7 @@ export async function POST(request: Request) {
     console.error("Error al crear la categoría:", error);
     return NextResponse.json(
       { message: "Error al crear la categoría" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
