@@ -29,6 +29,7 @@ interface Producto {
   nombre: string;
   precio: number;
   inventario: number;
+  activo: boolean;
   categoriaId: number;
   categoria: Categoria;
   cantidadVendida: number;
@@ -73,6 +74,7 @@ export default function InventarioPage() {
   const [pestanaActiva, setPestanaActiva] = useState<
     "productos" | "categorias"
   >("productos");
+  const [mostrarInactivos, setMostrarInactivos] = useState(false);
   const router = useRouter();
 
   const cargarDatos = async () => {
@@ -80,7 +82,7 @@ export default function InventarioPage() {
       setCargando(true);
       const [resCategorias, resProductos] = await Promise.all([
         fetch("/api/categorias"),
-        fetch("/api/productos"),
+        fetch(`/api/productos?mostrarInactivos=${mostrarInactivos}`),
       ]);
       const dataCategorias = await resCategorias.json();
       const dataProductos = await resProductos.json();
@@ -96,6 +98,10 @@ export default function InventarioPage() {
   useEffect(() => {
     cargarDatos();
   }, []);
+
+  useEffect(() => {
+    cargarDatos();
+  }, [mostrarInactivos]);
 
   // Sistema de Toast Notifications
   const mostrarToast = (
@@ -180,8 +186,8 @@ export default function InventarioPage() {
 
   const handleDeleteClick = (id: number) => {
     mostrarConfirmacion(
-      "¿Eliminar producto?",
-      "¿Estás seguro de que quieres eliminar este producto? Esta acción no se puede deshacer.",
+      "¿Desactivar producto?",
+      "¿Estás seguro de que quieres desactivar este producto? Dejará de aparecer en el punto de venta pero se mantendrá el historial.",
       async () => {
         try {
           const res = await fetch(`/api/productos/${id}`, {
@@ -191,19 +197,42 @@ export default function InventarioPage() {
           const data = await res.json();
 
           if (!res.ok) {
-            mostrarToast("error", data.message || "Error al eliminar producto");
+            mostrarToast(
+              "error",
+              data.message || "Error al desactivar producto",
+            );
             return;
           }
 
-          mostrarToast("success", "Producto eliminado exitosamente");
+          mostrarToast("success", "Producto desactivado exitosamente");
           cargarDatos();
         } catch (error) {
-          mostrarToast("error", "Error al eliminar producto");
+          mostrarToast("error", "Error al desactivar producto");
         } finally {
           cerrarConfirmacion();
         }
       },
     );
+  };
+
+  const handleReactivarClick = async (id: number) => {
+    try {
+      const res = await fetch(`/api/productos/${id}/reactivar`, {
+        method: "PUT",
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        mostrarToast("error", data.message || "Error al reactivar producto");
+        return;
+      }
+
+      mostrarToast("success", "Producto reactivado exitosamente");
+      cargarDatos();
+    } catch (error) {
+      mostrarToast("error", "Error al reactivar producto");
+    }
   };
 
   const handleUpdateSubmit = async (event: FormEvent) => {
@@ -352,6 +381,15 @@ export default function InventarioPage() {
                   Lista de Productos
                 </h2>
                 <div className="flex items-center gap-4">
+                  <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={mostrarInactivos}
+                      onChange={(e) => setMostrarInactivos(e.target.checked)}
+                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                    />
+                    <span>Mostrar inactivos</span>
+                  </label>
                   <select
                     value={categoriaFiltro}
                     onChange={(e) =>
@@ -419,11 +457,18 @@ export default function InventarioPage() {
                                 index === productosFiltrados.length - 1
                                   ? "border-b-0"
                                   : ""
-                              }`}
+                              } ${!producto.activo ? "opacity-50 bg-gray-50" : ""}`}
                             >
                               <td className="p-4">
-                                <div className="font-semibold text-gray-800">
-                                  {producto.nombre}
+                                <div className="flex items-center gap-2">
+                                  <span className="font-semibold text-gray-800">
+                                    {producto.nombre}
+                                  </span>
+                                  {!producto.activo && (
+                                    <span className="text-xs bg-gray-300 text-gray-700 px-2 py-1 rounded-full">
+                                      Inactivo
+                                    </span>
+                                  )}
                                 </div>
                               </td>
                               <td className="p-4">
@@ -470,24 +515,36 @@ export default function InventarioPage() {
                                 </div>
                               </td>
                               <td className="p-4">
-                                <div className="flex gap-2">
-                                  <button
-                                    onClick={() => handleEditClick(producto)}
-                                    className="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 transition-all duration-200 text-sm font-medium flex items-center gap-1"
-                                  >
-                                    <Pencil className="w-3 h-3" />
-                                    Editar
-                                  </button>
+                                {producto.activo ? (
+                                  <div className="flex gap-2">
+                                    <button
+                                      onClick={() => handleEditClick(producto)}
+                                      className="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 transition-all duration-200 text-sm font-medium flex items-center gap-1"
+                                    >
+                                      <Pencil className="w-3 h-3" />
+                                      Editar
+                                    </button>
+                                    <button
+                                      onClick={() =>
+                                        handleDeleteClick(producto.id)
+                                      }
+                                      className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 transition-all duration-200 text-sm font-medium flex items-center gap-1"
+                                    >
+                                      <Trash2 className="w-3 h-3" />
+                                      Desactivar
+                                    </button>
+                                  </div>
+                                ) : (
                                   <button
                                     onClick={() =>
-                                      handleDeleteClick(producto.id)
+                                      handleReactivarClick(producto.id)
                                     }
-                                    className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 transition-all duration-200 text-sm font-medium flex items-center gap-1"
+                                    className="bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600 transition-all duration-200 text-sm font-medium flex items-center gap-1"
                                   >
-                                    <Trash2 className="w-3 h-3" />
-                                    Eliminar
+                                    <CheckCircle className="w-3 h-3" />
+                                    Reactivar
                                   </button>
-                                </div>
+                                )}
                               </td>
                             </tr>
                           ))}

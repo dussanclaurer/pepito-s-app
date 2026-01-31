@@ -64,26 +64,17 @@ export async function DELETE(
     if (Number.isNaN(productoId))
       return NextResponse.json({ message: "ID inválido" }, { status: 400 });
 
-    // Verificar si el producto tiene ventas asociadas
-    const ventasAsociadas = await prisma.ventaProducto.count({
-      where: { productoId: productoId },
+    // Soft delete: marcar como inactivo en lugar de eliminar
+    await prisma.producto.update({
+      where: { id: productoId },
+      data: { activo: false },
     });
 
-    if (ventasAsociadas > 0) {
-      return NextResponse.json(
-        {
-          message: `No se puede eliminar el producto porque tiene ${ventasAsociadas} venta${ventasAsociadas > 1 ? "s" : ""} asociada${ventasAsociadas > 1 ? "s" : ""}`,
-        },
-        { status: 400 },
-      );
-    }
-
-    await prisma.producto.delete({ where: { id: productoId } });
-    return NextResponse.json({ message: "Producto eliminado exitosamente" });
+    return NextResponse.json({ message: "Producto desactivado exitosamente" });
   } catch (e) {
-    console.error("Error eliminando producto:", e);
+    console.error("Error desactivando producto:", e);
     return NextResponse.json(
-      { message: "Error al eliminar producto" },
+      { message: "Error al desactivar producto" },
       { status: 500 },
     );
   }

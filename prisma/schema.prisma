@@ -29,7 +29,7 @@ enum Role {
 
 // Modelo para las categorías de productos
 model Categoria {
-  id    Int    @id @default(autoincrement())
+  id     Int    @id @default(autoincrement())
   nombre String @unique
 
   productos Producto[]
@@ -37,36 +37,38 @@ model Categoria {
 
 // Modelo para los productos individuales
 model Producto {
-  id         Int      @id @default(autoincrement())
-  nombre     String
-  precio     Float
-  inventario Int      @default(0)
-  creadoEn   DateTime @default(now())
+  id            Int      @id @default(autoincrement())
+  nombre        String
+  precio        Float
+  inventario    Int      @default(0)
+  activo        Boolean  @default(true)
+  creadoEn      DateTime @default(now())
   actualizadoEn DateTime @updatedAt
 
   categoriaId Int
   categoria   Categoria @relation(fields: [categoriaId], references: [id])
 
   ventas VentaProducto[]
+
   @@unique([nombre, categoriaId])
 }
 
 // Modelo para registrar cada transacción de venta
 model Venta {
-  id       Int      @id @default(autoincrement())
-  subtotal Float    // Suma de productos antes de descuento
-  descuento Float   @default(0) // Rebaja aplicada  
-  total    Float    // subtotal - descuento
-  creadoEn DateTime @default(now())
+  id        Int      @id @default(autoincrement())
+  subtotal  Float // Suma de productos antes de descuento
+  descuento Float    @default(0) // Rebaja aplicada  
+  total     Float // subtotal - descuento
+  creadoEn  DateTime @default(now())
 
   // Relación con el usuario vendedor
   vendedorId String?
   vendedor   User?   @relation(fields: [vendedorId], references: [id])
 
   // Campos de Pagos DEPRECADOS (mantener por compatibilidad con ventas antiguas)
-  metodoPago    MetodoPago @default(EFECTIVO) 
-  montoRecibido Float      @default(0)        
-  cambio        Float      @default(0)        
+  metodoPago    MetodoPago @default(EFECTIVO)
+  montoRecibido Float      @default(0)
+  cambio        Float      @default(0)
 
   productosVendidos VentaProducto[]
   pagos             PagoDetalle[]
@@ -78,15 +80,15 @@ model PagoDetalle {
   metodoPago MetodoPago
   monto      Float
   cambio     Float      @default(0) // Solo para efectivo
-  
+
   ventaId Int
   venta   Venta @relation(fields: [ventaId], references: [id], onDelete: Cascade)
 }
 
 // Modelo intermedio para registrar qué productos se vendieron en cada venta
 model VentaProducto {
-  id           Int @id @default(autoincrement())
-  cantidad     Int
+  id             Int   @id @default(autoincrement())
+  cantidad       Int
   precioUnitario Float
 
   ventaId Int
@@ -98,9 +100,9 @@ model VentaProducto {
 
 // Modelo para los Clientes
 model Cliente {
-  id       Int    @id @default(autoincrement())
+  id       Int      @id @default(autoincrement())
   nombre   String
-  telefono String @unique // Usamos el teléfono como identificador único
+  telefono String   @unique // Usamos el teléfono como identificador único
   creadoEn DateTime @default(now())
 
   pedidos Pedido[]
@@ -108,16 +110,16 @@ model Cliente {
 
 // Modelo para los Pedidos Personalizados
 model Pedido {
-  id            Int          @id @default(autoincrement())
-  detalles      String       @db.Text 
-  fechaEntrega  DateTime     
-  montoTotal    Float
-  anticipo      Float        @default(0)
-  metodoPagoAnticipo MetodoPago @default(EFECTIVO)
-  descuentoSaldo Float       @default(0) // Descuento aplicado al saldo final
-  estado        EstadoPedido @default(PENDIENTE) 
-  creadoEn      DateTime     @default(now())
-  actualizadoEn DateTime     @updatedAt
+  id                 Int          @id @default(autoincrement())
+  detalles           String       @db.Text
+  fechaEntrega       DateTime
+  montoTotal         Float
+  anticipo           Float        @default(0)
+  metodoPagoAnticipo MetodoPago   @default(EFECTIVO)
+  descuentoSaldo     Float        @default(0) // Descuento aplicado al saldo final
+  estado             EstadoPedido @default(PENDIENTE)
+  creadoEn           DateTime     @default(now())
+  actualizadoEn      DateTime     @updatedAt
 
   // Relación con el usuario vendedor
   vendedorId String?
@@ -125,7 +127,7 @@ model Pedido {
 
   clienteId Int
   cliente   Cliente @relation(fields: [clienteId], references: [id])
-  
+
   pagos PagoPedido[] // Pagos del saldo
 }
 
@@ -138,43 +140,43 @@ model PagoPedido {
   cambio     Float      @default(0)
   esSaldo    Boolean    @default(false) // true = pago del saldo final
   creadoEn   DateTime   @default(now())
-  
+
   pedido Pedido @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
 }
 
 // Modelo para los usuarios
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  createdAt     DateTime  @default(now())  
-  
-  password      String?   
-  role          Role      @default(CAJERO) 
+  id        String   @id @default(cuid())
+  name      String?
+  email     String?  @unique
+  createdAt DateTime @default(now())
+
+  password String?
+  role     Role    @default(CAJERO)
 
   // Relaciones inversas para ventas y pedidos
-  ventas        Venta[]
-  pedidos       Pedido[]
+  ventas  Venta[]
+  pedidos Pedido[]
 
-  accounts      Account[]
-  sessions      Session[]
+  accounts Account[]
+  sessions Session[]
 }
 
 // Modelo para las cuentas 
 model Account {
-  id                       String  @id @default(cuid())
-  userId                   String
-  type                     String
-  provider                 String
-  providerAccountId        String
-  refresh_token            String? @db.Text
-  access_token             String? @db.Text
-  expires_at               Int?
-  token_type               String?
-  scope                    String?
-  id_token                 String? @db.Text
-  session_state            String?
-  
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
@@ -195,4 +197,3 @@ model VerificationToken {
 
   @@unique([identifier, token])
 }
-
