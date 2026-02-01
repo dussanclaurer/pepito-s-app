@@ -22,6 +22,7 @@ import {
 interface Categoria {
   id: number;
   nombre: string;
+  activo: boolean;
 }
 
 interface Producto {
@@ -75,13 +76,15 @@ export default function InventarioPage() {
     "productos" | "categorias"
   >("productos");
   const [mostrarInactivos, setMostrarInactivos] = useState(false);
+  const [mostrarInactivosCategorias, setMostrarInactivosCategorias] =
+    useState(false);
   const router = useRouter();
 
   const cargarDatos = async () => {
     try {
       setCargando(true);
       const [resCategorias, resProductos] = await Promise.all([
-        fetch("/api/categorias"),
+        fetch(`/api/categorias?mostrarInactivos=${mostrarInactivosCategorias}`),
         fetch(`/api/productos?mostrarInactivos=${mostrarInactivos}`),
       ]);
       const dataCategorias = await resCategorias.json();
@@ -102,6 +105,10 @@ export default function InventarioPage() {
   useEffect(() => {
     cargarDatos();
   }, [mostrarInactivos]);
+
+  useEffect(() => {
+    cargarDatos();
+  }, [mostrarInactivosCategorias]);
 
   // Sistema de Toast Notifications
   const mostrarToast = (
@@ -279,8 +286,8 @@ export default function InventarioPage() {
 
   const handleDeleteCategoria = (id: number) => {
     mostrarConfirmacion(
-      "¿Eliminar categoría?",
-      "¿Estás seguro de que quieres eliminar esta categoría? Esta acción no se puede deshacer.",
+      "¿Desactivar categoría?",
+      "¿Estás seguro de que quieres desactivar esta categoría? Los productos asociados se mantendrán pero la categoría dejará de aparecer.",
       async () => {
         try {
           const res = await fetch(`/api/categorias/${id}`, {
@@ -292,20 +299,40 @@ export default function InventarioPage() {
           if (!res.ok) {
             mostrarToast(
               "error",
-              data.message || "Error al eliminar categoría",
+              data.message || "Error al desactivar categoría",
             );
             return;
           }
 
-          mostrarToast("success", "Categoría eliminada exitosamente");
+          mostrarToast("success", "Categoría desactivada exitosamente");
           cargarDatos();
         } catch (error) {
-          mostrarToast("error", "Error al eliminar categoría");
+          mostrarToast("error", "Error al desactivar categoría");
         } finally {
           cerrarConfirmacion();
         }
       },
     );
+  };
+
+  const handleReactivarCategoria = async (id: number) => {
+    try {
+      const res = await fetch(`/api/categorias/${id}/reactivar`, {
+        method: "PUT",
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        mostrarToast("error", data.message || "Error al reactivar categoría");
+        return;
+      }
+
+      mostrarToast("success", "Categoría reactivada exitosamente");
+      cargarDatos();
+    } catch (error) {
+      mostrarToast("error", "Error al reactivar categoría");
+    }
   };
 
   const abrirModalNuevoProducto = () => {
@@ -583,9 +610,22 @@ export default function InventarioPage() {
                   </span>
                   Categorías
                 </h2>
-                <div className="text-sm text-gray-500">
-                  {categorias.length} categoría
-                  {categorias.length !== 1 ? "s" : ""}
+                <div className="flex items-center gap-4">
+                  <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={mostrarInactivosCategorias}
+                      onChange={(e) =>
+                        setMostrarInactivosCategorias(e.target.checked)
+                      }
+                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                    />
+                    <span>Mostrar inactivos</span>
+                  </label>
+                  <div className="text-sm text-gray-500">
+                    {categorias.length} categoría
+                    {categorias.length !== 1 ? "s" : ""}
+                  </div>
                 </div>
               </div>
 
@@ -602,25 +642,44 @@ export default function InventarioPage() {
                     return (
                       <div
                         key={cat.id}
-                        className="bg-gradient-to-br from-blue-50 to-white border border-blue-100 rounded-xl p-4 hover:shadow-lg transition-all"
+                        className={`bg-gradient-to-br from-blue-50 to-white border border-blue-100 rounded-xl p-4 hover:shadow-lg transition-all ${
+                          !cat.activo ? "opacity-50 bg-gray-100" : ""
+                        }`}
                       >
                         <div className="flex items-center justify-between">
                           <div>
-                            <h3 className="text-lg font-bold text-gray-800">
-                              {cat.nombre}
-                            </h3>
+                            <div className="flex items-center gap-2">
+                              <h3 className="text-lg font-bold text-gray-800">
+                                {cat.nombre}
+                              </h3>
+                              {!cat.activo && (
+                                <span className="text-xs bg-gray-300 text-gray-700 px-2 py-1 rounded-full">
+                                  Inactivo
+                                </span>
+                              )}
+                            </div>
                             <p className="text-sm text-gray-500 mt-1">
                               {productosEnCategoria} producto
                               {productosEnCategoria !== 1 ? "s" : ""}
                             </p>
                           </div>
-                          <button
-                            onClick={() => handleDeleteCategoria(cat.id)}
-                            className="text-red-500 hover:text-red-700 hover:bg-red-50 transition-colors p-2 rounded-lg"
-                            title="Eliminar categoría"
-                          >
-                            <Trash2 className="w-5 h-5" />
-                          </button>
+                          {cat.activo ? (
+                            <button
+                              onClick={() => handleDeleteCategoria(cat.id)}
+                              className="text-red-500 hover:text-red-700 hover:bg-red-50 transition-colors p-2 rounded-lg"
+                              title="Desactivar categoría"
+                            >
+                              <Trash2 className="w-5 h-5" />
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => handleReactivarCategoria(cat.id)}
+                              className="text-green-500 hover:text-green-700 hover:bg-green-50 transition-colors p-2 rounded-lg"
+                              title="Reactivar categoría"
+                            >
+                              <CheckCircle className="w-5 h-5" />
+                            </button>
+                          )}
                         </div>
                       </div>
                     );

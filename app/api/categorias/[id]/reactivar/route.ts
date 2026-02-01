@@ -1,4 +1,4 @@
-// app/api/categorias/[id]/route.ts
+// app/api/categorias/[id]/reactivar/route.ts
 
 import { NextResponse, type NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
@@ -13,7 +13,7 @@ async function isAdmin(req: Request | NextRequest) {
   return token?.role === Role.ADMIN;
 }
 
-export async function DELETE(
+export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
@@ -27,17 +27,17 @@ export async function DELETE(
     if (Number.isNaN(categoriaId))
       return NextResponse.json({ message: "ID inválido" }, { status: 400 });
 
-    // Soft delete: marcar como inactivo en lugar de eliminar
+    // Reactivar la categoría
     await prisma.categoria.update({
       where: { id: categoriaId },
-      data: { activo: false },
+      data: { activo: true },
     });
 
-    return NextResponse.json({ message: "Categoría desactivada exitosamente" });
+    return NextResponse.json({ message: "Categoría reactivada exitosamente" });
   } catch (e) {
-    console.error("Error desactivando categoría:", e);
+    console.error("Error reactivando categoría:", e);
     return NextResponse.json(
-      { message: "Error al desactivar categoría" },
+      { message: "Error al reactivar categoría" },
       { status: 500 },
     );
   }

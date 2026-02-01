@@ -1,9 +1,9 @@
 // app/api/reportes/cierre-caja/route.ts
 
-import { NextResponse } from 'next/server';
-import { MetodoPago, Prisma, PrismaClient } from '@prisma/client';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { NextResponse } from "next/server";
+import { MetodoPago, Prisma, PrismaClient } from "@prisma/client";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 const prisma = new PrismaClient();
 
@@ -11,7 +11,7 @@ export async function GET(request: Request) {
   try {
     // Obtener el usuario autenticado
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user) {
       return NextResponse.json({ message: "No autorizado" }, { status: 401 });
     }
@@ -19,24 +19,24 @@ export async function GET(request: Request) {
     const userId = session.user.id;
     const userRole = session.user.role;
     const userName = session.user.name;
-    
+
     // Calcular inicio y fin del día en zona horaria de Bolivia
-    const timeZone = 'America/La_Paz';
-    
+    const timeZone = "America/La_Paz";
+
     // Obtener la fecha/hora actual en UTC
     const ahora = new Date();
-    
+
     // Obtener la fecha en zona horaria de Bolivia como string
-    const dateStringBolivia = ahora.toLocaleString('en-US', { 
+    const dateStringBolivia = ahora.toLocaleString("en-US", {
       timeZone,
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit'
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
     });
-    
+
     // Parsear para obtener año/mes/día en Bolivia
-    const [month, day, year] = dateStringBolivia.split('/');
-    
+    const [month, day, year] = dateStringBolivia.split("/");
+
     // Crear inicio y fin del día en UTC usando offset de Bolivia (GMT-4)
     // Medianoche en Bolivia = 04:00 UTC del mismo día
     // 23:59:59 en Bolivia = 03:59:59 UTC del día siguiente
@@ -46,22 +46,25 @@ export async function GET(request: Request) {
     // Determinar filtro según rol
     const ventaFilter: Prisma.VentaWhereInput = {
       creadoEn: {
-        gte: inicioDelDia, 
-        lte: finDelDia,     
+        gte: inicioDelDia,
+        lte: finDelDia,
       },
     };
 
     // Si es cajero, filtrar solo sus ventas
-    if (userRole === 'CAJERO') {
+    if (userRole === "CAJERO") {
       ventaFilter.vendedorId = userId;
     }
     // Si es ADMIN, no agregar filtro adicional (todas las ventas)
 
-    const totalesVentasPorMetodo = await prisma.venta.groupBy({
-      by: ['metodoPago'],
-      where: ventaFilter,
+    // Obtener pagos de ventas del día (usando PagoDetalle en lugar de campo deprecado)
+    const pagosVentas = await prisma.pagoDetalle.groupBy({
+      by: ["metodoPago"],
+      where: {
+        venta: ventaFilter,
+      },
       _sum: {
-        total: true, 
+        monto: true,
       },
     });
 
@@ -77,36 +80,36 @@ export async function GET(request: Request) {
     };
 
     // Si es cajero, filtrar solo sus pedidos
-    if (userRole === 'CAJERO') {
+    if (userRole === "CAJERO") {
       pedidoFilter.vendedorId = userId;
     }
 
     const anticiposPorMetodo = await prisma.pedido.groupBy({
-      by: ['metodoPagoAnticipo'],
+      by: ["metodoPagoAnticipo"],
       where: pedidoFilter,
       _sum: {
         anticipo: true,
       },
     });
-    
+
     const reporteFinal = new Map<MetodoPago, number>();
     reporteFinal.set(MetodoPago.EFECTIVO, 0);
     reporteFinal.set(MetodoPago.QR, 0);
 
-    for (const item of totalesVentasPorMetodo) {
+    for (const item of pagosVentas) {
       const montoActual = reporteFinal.get(item.metodoPago) || 0;
-      reporteFinal.set(item.metodoPago, montoActual + (item._sum.total || 0));
+      reporteFinal.set(item.metodoPago, montoActual + (item._sum.monto || 0));
     }
-    
+
     for (const item of anticiposPorMetodo) {
       const metodo = item.metodoPagoAnticipo;
       const totalAnticipo = item._sum.anticipo || 0;
       reporteFinal.set(metodo, (reporteFinal.get(metodo) || 0) + totalAnticipo);
     }
-    
+
     // Obtener pagos delSaldo de pedidos completados hoy
     const pagosSaldoPedidos = await prisma.pagoPedido.groupBy({
-      by: ['metodoPago'],
+      by: ["metodoPago"],
       where: {
         creadoEn: {
           gte: inicioDelDia,
@@ -124,17 +127,28 @@ export async function GET(request: Request) {
       const montoActual = reporteFinal.get(item.metodoPago) || 0;
       reporteFinal.set(item.metodoPago, montoActual + (item._sum.monto || 0));
     }
-    
-    const reporteFormateado = Array.from(reporteFinal.entries()).map(([metodoPago, total]) => ({
-      metodoPago,
-      total,
-    })).sort((a, b) => a.metodoPago.localeCompare(b.metodoPago));
 
-    const totalGeneralVentas = totalesVentasPorMetodo.reduce((acc, item) => acc + (item._sum.total || 0), 0);
-    const totalAnticipos = anticiposPorMetodo.reduce((acc, item) => acc + (item._sum.anticipo || 0), 0);
-    const totalPagosSaldo = pagosSaldoPedidos.reduce((acc, item) => acc + (item._sum.monto || 0), 0);
+    const reporteFormateado = Array.from(reporteFinal.entries())
+      .map(([metodoPago, total]) => ({
+        metodoPago,
+        total,
+      }))
+      .sort((a, b) => a.metodoPago.localeCompare(b.metodoPago));
+
+    const totalGeneralVentas = pagosVentas.reduce(
+      (acc, item) => acc + (item._sum.monto || 0),
+      0,
+    );
+    const totalAnticipos = anticiposPorMetodo.reduce(
+      (acc, item) => acc + (item._sum.anticipo || 0),
+      0,
+    );
+    const totalPagosSaldo = pagosSaldoPedidos.reduce(
+      (acc, item) => acc + (item._sum.monto || 0),
+      0,
+    );
     const totalGeneral = totalGeneralVentas + totalAnticipos + totalPagosSaldo;
-    
+
     // Obtener total de descuentos aplicados hoy (ventas + pedidos)
     const descuentosHoy = await prisma.venta.aggregate({
       where: ventaFilter,
@@ -153,11 +167,13 @@ export async function GET(request: Request) {
       },
     });
 
-    const totalDescuentos = (descuentosHoy._sum.descuento || 0) + (descuentosPedidos._sum.descuentoSaldo || 0);
-    
+    const totalDescuentos =
+      (descuentosHoy._sum.descuento || 0) +
+      (descuentosPedidos._sum.descuentoSaldo || 0);
+
     // Get products sold today with breakdown (filtrado por usuario)
     const productosVendidosHoy = await prisma.ventaProducto.groupBy({
-      by: ['productoId'],
+      by: ["productoId"],
       where: {
         venta: ventaFilter,
       },
@@ -170,7 +186,7 @@ export async function GET(request: Request) {
     const productosInfo = await prisma.producto.findMany({
       where: {
         id: {
-          in: productosVendidosHoy.map(p => p.productoId),
+          in: productosVendidosHoy.map((p) => p.productoId),
         },
       },
       select: {
@@ -180,26 +196,31 @@ export async function GET(request: Request) {
       },
     });
 
-    const productosMap = new Map(productosInfo.map(p => [p.id, p]));
+    const productosMap = new Map(productosInfo.map((p) => [p.id, p]));
 
-    const productosVendidos = productosVendidosHoy.map(pv => {
-      const info = productosMap.get(pv.productoId);
-      const cantidadVendida = pv._sum.cantidad || 0;
-      const ingresoGenerado = (info?.precio || 0) * cantidadVendida;
-      
-      return {
-        nombre: info?.nombre || 'Producto desconocido',
-        cantidadVendida,
-        ingresoGenerado,
-      };
-    }).sort((a, b) => b.cantidadVendida - a.cantidadVendida);
+    const productosVendidos = productosVendidosHoy
+      .map((pv) => {
+        const info = productosMap.get(pv.productoId);
+        const cantidadVendida = pv._sum.cantidad || 0;
+        const ingresoGenerado = (info?.precio || 0) * cantidadVendida;
 
-    const totalUnidadesVendidas = productosVendidos.reduce((acc, p) => acc + p.cantidadVendida, 0);
-    
+        return {
+          nombre: info?.nombre || "Producto desconocido",
+          cantidadVendida,
+          ingresoGenerado,
+        };
+      })
+      .sort((a, b) => b.cantidadVendida - a.cantidadVendida);
+
+    const totalUnidadesVendidas = productosVendidos.reduce(
+      (acc, p) => acc + p.cantidadVendida,
+      0,
+    );
+
     const respuesta = {
       totalesPorMetodo: reporteFormateado,
       totalGeneral: totalGeneral,
-      fechaReporte: new Date().toLocaleDateString('es-BO', { timeZone }),
+      fechaReporte: new Date().toLocaleDateString("es-BO", { timeZone }),
       desglose: {
         totalVentas: totalGeneralVentas,
         totalAnticipos: totalAnticipos,
@@ -214,7 +235,6 @@ export async function GET(request: Request) {
     };
 
     return NextResponse.json(respuesta, { status: 200 });
-
   } catch (error) {
     console.error("Error al generar el cierre de caja:", error);
     let errorMessage = "Error al generar el reporte";
