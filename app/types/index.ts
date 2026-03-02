@@ -1,12 +1,13 @@
 // app/types/index.ts
 
-import { MetodoPago } from '@prisma/client';
+import { MetodoPago } from "@prisma/client";
 
 export interface Producto {
   id: number;
   nombre: string;
   precio: number;
   inventario: number;
+  imagenUrl?: string | null;
 }
 
 export interface CartItem extends Producto {
@@ -72,10 +73,10 @@ export interface Pedido {
   estado: EstadoPedido;
   creadoEn: string;
   actualizadoEn: string;
-  
+
   clienteId: number;
-  cliente: Cliente; 
-  
+  cliente: Cliente;
+
   pagos?: PagoPedido[];
 }
 

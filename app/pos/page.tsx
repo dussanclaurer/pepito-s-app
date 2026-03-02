@@ -1,24 +1,30 @@
 // app/pos/page.tsx
 
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import PaymentModal from '@/app/components/pos/PaymentModal';
-import ReceiptModal from '@/app/components/pos/ReceiptModal';
-import type { Producto, CartItem, VentaData, VentaParaRecibo } from '@/app/types/index';
-import { Search, Cake, ShoppingCart, Plus, Minus } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import PaymentModal from "@/app/components/pos/PaymentModal";
+import ReceiptModal from "@/app/components/pos/ReceiptModal";
+import type {
+  Producto,
+  CartItem,
+  VentaData,
+  VentaParaRecibo,
+} from "@/app/types/index";
+import { Search, Cake, ShoppingCart, Plus, Minus } from "lucide-react";
 
 export default function POSPage() {
   const [productos, setProductos] = useState<Producto[]>([]);
   const [carrito, setCarrito] = useState<CartItem[]>([]);
-  const [busqueda, setBusqueda] = useState('');
+  const [busqueda, setBusqueda] = useState("");
   const [cargando, setCargando] = useState(true);
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [notificacion, setNotificacion] = useState<string | null>(null);
   const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
-  const [ventaParaRecibo, setVentaParaRecibo] = useState<VentaParaRecibo | null>(null);
+  const [ventaParaRecibo, setVentaParaRecibo] =
+    useState<VentaParaRecibo | null>(null);
 
   const mostrarNotificacion = (mensaje: string) => {
     setNotificacion(mensaje);
@@ -30,12 +36,12 @@ export default function POSPage() {
   useEffect(() => {
     const cargarProductos = async () => {
       try {
-        const res = await fetch('/api/productos');
+        const res = await fetch("/api/productos");
         const data = await res.json();
         setProductos(data);
       } catch (error) {
-        console.error('Error cargando productos:', error);
-        mostrarNotificacion('Error al cargar productos.');
+        console.error("Error cargando productos:", error);
+        mostrarNotificacion("Error al cargar productos.");
       } finally {
         setCargando(false);
       }
@@ -45,21 +51,23 @@ export default function POSPage() {
 
   const agregarAlCarrito = (producto: Producto) => {
     if (producto.inventario <= 0) {
-      mostrarNotificacion('Producto sin stock disponible');
+      mostrarNotificacion("Producto sin stock disponible");
       return;
     }
 
-    setCarrito(prevCarrito => {
-      const productoExistente = prevCarrito.find(item => item.id === producto.id);
+    setCarrito((prevCarrito) => {
+      const productoExistente = prevCarrito.find(
+        (item) => item.id === producto.id,
+      );
       if (productoExistente) {
         if (productoExistente.cantidad >= producto.inventario) {
-          mostrarNotificacion('No hay suficiente stock disponible');
+          mostrarNotificacion("No hay suficiente stock disponible");
           return prevCarrito;
         }
-        return prevCarrito.map(item =>
+        return prevCarrito.map((item) =>
           item.id === producto.id
             ? { ...item, cantidad: item.cantidad + 1 }
-            : item
+            : item,
         );
       } else {
         return [...prevCarrito, { ...producto, cantidad: 1 }];
@@ -68,21 +76,21 @@ export default function POSPage() {
   };
 
   const actualizarCantidad = (productoId: number, cantidad: number) => {
-    setCarrito(prevCarrito => {
+    setCarrito((prevCarrito) => {
       if (cantidad <= 0) {
-        return prevCarrito.filter(item => item.id !== productoId);
+        return prevCarrito.filter((item) => item.id !== productoId);
       }
 
-      const producto = productos.find(p => p.id === productoId);
+      const producto = productos.find((p) => p.id === productoId);
       if (producto && cantidad > producto.inventario) {
-        mostrarNotificacion('No hay suficiente stock disponible');
-        return prevCarrito.map(item =>
-          item.id === productoId ? { ...item, cantidad: item.cantidad } : item
+        mostrarNotificacion("No hay suficiente stock disponible");
+        return prevCarrito.map((item) =>
+          item.id === productoId ? { ...item, cantidad: item.cantidad } : item,
         );
       }
 
-      return prevCarrito.map(item =>
-        item.id === productoId ? { ...item, cantidad } : item
+      return prevCarrito.map((item) =>
+        item.id === productoId ? { ...item, cantidad } : item,
       );
     });
   };
@@ -93,23 +101,23 @@ export default function POSPage() {
 
   const finalizarVenta = () => {
     if (carrito.length === 0) {
-      mostrarNotificacion('El carrito está vacío.');
+      mostrarNotificacion("El carrito está vacío.");
       return;
     }
     setIsModalOpen(true);
   };
 
   const handleVentaExitosa = async (ventaData: VentaData) => {
-    mostrarNotificacion('Venta realizada con éxito!');
+    mostrarNotificacion("Venta realizada con éxito!");
 
     setVentaParaRecibo({ venta: ventaData, items: carrito });
 
     try {
-      const res = await fetch('/api/productos');
+      const res = await fetch("/api/productos");
       const data = await res.json();
       setProductos(data);
     } catch (error) {
-      mostrarNotificacion('Error al recargar productos, recarga la página.');
+      mostrarNotificacion("Error al recargar productos, recarga la página.");
     }
   };
 
@@ -125,15 +133,17 @@ export default function POSPage() {
     }
   }, [ventaParaRecibo]);
 
-  const totalCarrito = carrito.reduce((total, item) => total + item.precio * item.cantidad, 0);
+  const totalCarrito = carrito.reduce(
+    (total, item) => total + item.precio * item.cantidad,
+    0,
+  );
 
-  const productosFiltrados = productos.filter(p =>
-    p.nombre.toLowerCase().includes(busqueda.toLowerCase())
+  const productosFiltrados = productos.filter((p) =>
+    p.nombre.toLowerCase().includes(busqueda.toLowerCase()),
   );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-red-50">
-
       {/* --- Contenedor de Notificación --- */}
       {notificacion && (
         <div className="fixed top-20 right-4 left-4 sm:left-auto sm:right-6 sm:w-auto bg-red-600 text-white px-4 sm:px-6 py-3 rounded-lg shadow-lg z-50 animate-slide-in-out text-center sm:text-left">
@@ -147,7 +157,9 @@ export default function POSPage() {
           <div className="lg:col-span-2">
             <div className="bg-white rounded-2xl shadow-xl p-6 border border-blue-100">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
-                <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Catálogo de Productos</h2>
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-800">
+                  Catálogo de Productos
+                </h2>
                 <div className="relative w-full sm:w-64">
                   <input
                     type="text"
@@ -168,29 +180,43 @@ export default function POSPage() {
                 </div>
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 max-h-[50vh] sm:max-h-[70vh] overflow-y-auto pr-2">
-                  {productosFiltrados.map(producto => (
+                  {productosFiltrados.map((producto) => (
                     <div
                       key={producto.id}
                       onClick={() => agregarAlCarrito(producto)}
-                      className={`bg-gradient-to-br from-white to-gray-50 p-4 rounded-xl shadow-md cursor-pointer text-center hover:shadow-lg transition-all duration-300 border-2 ${producto.inventario <= 0
-                        ? 'border-red-200 opacity-60'
-                        : 'border-blue-100 hover:border-blue-300'
-                        }`}
+                      className={`bg-gradient-to-br from-white to-gray-50 p-4 rounded-xl shadow-md cursor-pointer text-center hover:shadow-lg transition-all duration-300 border-2 ${
+                        producto.inventario <= 0
+                          ? "border-red-200 opacity-60"
+                          : "border-blue-100 hover:border-blue-300"
+                      }`}
                     >
-                      <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-red-500 rounded-full flex items-center justify-center mx-auto mb-3 text-white">
-                        <Cake className="w-6 h-6" />
-                      </div>
+                      {producto.imagenUrl ? (
+                        <img
+                          src={producto.imagenUrl}
+                          alt={producto.nombre}
+                          className="w-16 h-16 rounded-full object-cover mx-auto mb-3 border-2 border-blue-100 shadow-sm"
+                        />
+                      ) : (
+                        <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-red-500 rounded-full flex items-center justify-center mx-auto mb-3 text-white">
+                          <Cake className="w-6 h-6" />
+                        </div>
+                      )}
                       <h3 className="font-semibold text-gray-800 mb-1 line-clamp-2">
                         {producto.nombre}
                       </h3>
                       <p className="text-lg font-bold text-blue-600 mb-1">
                         Bs. {producto.precio.toFixed(2)}
                       </p>
-                      <div className={`text-xs font-medium px-2 py-1 rounded-full ${producto.inventario > 0
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-red-100 text-red-800'
-                        }`}>
-                        {producto.inventario > 0 ? `${producto.inventario} en stock` : 'Sin stock'}
+                      <div
+                        className={`text-xs font-medium px-2 py-1 rounded-full ${
+                          producto.inventario > 0
+                            ? "bg-green-100 text-green-800"
+                            : "bg-red-100 text-red-800"
+                        }`}
+                      >
+                        {producto.inventario > 0
+                          ? `${producto.inventario} en stock`
+                          : "Sin stock"}
                       </div>
                     </div>
                   ))}
@@ -203,7 +229,9 @@ export default function POSPage() {
           <div className="lg:col-span-1">
             <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-6 border border-blue-100 h-full flex flex-col">
               <div className="flex items-center justify-between mb-4 sm:mb-6">
-                <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Pedido Actual</h2>
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-800">
+                  Pedido Actual
+                </h2>
                 {carrito.length > 0 && (
                   <button
                     onClick={limpiarCarrito}
@@ -218,22 +246,28 @@ export default function POSPage() {
                 {carrito.length === 0 ? (
                   <div className="text-center py-12">
                     <ShoppingCart className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-                    <p className="text-gray-500 text-lg">El carrito está vacío</p>
+                    <p className="text-gray-500 text-lg">
+                      El carrito está vacío
+                    </p>
                     <p className="text-gray-400 text-sm mt-2">
                       Agrega productos desde el catálogo
                     </p>
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    {carrito.map(item => (
+                    {carrito.map((item) => (
                       <div
                         key={item.id}
                         className="bg-gradient-to-r from-blue-50 to-red-50 rounded-xl p-4 border border-blue-100 hover:border-blue-200 transition-colors"
                       >
                         <div className="flex justify-between items-start mb-2">
                           <div className="flex-1">
-                            <h3 className="font-semibold text-gray-800">{item.nombre}</h3>
-                            <p className="text-sm text-gray-600">Bs. {item.precio.toFixed(2)} c/u</p>
+                            <h3 className="font-semibold text-gray-800">
+                              {item.nombre}
+                            </h3>
+                            <p className="text-sm text-gray-600">
+                              Bs. {item.precio.toFixed(2)} c/u
+                            </p>
                           </div>
                           <div className="text-right">
                             <p className="font-bold text-blue-600 text-lg">
@@ -242,10 +276,14 @@ export default function POSPage() {
                           </div>
                         </div>
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-500">Cantidad:</span>
+                          <span className="text-sm text-gray-500">
+                            Cantidad:
+                          </span>
                           <div className="flex items-center gap-2">
                             <button
-                              onClick={() => actualizarCantidad(item.id, item.cantidad - 1)}
+                              onClick={() =>
+                                actualizarCantidad(item.id, item.cantidad - 1)
+                              }
                               className="w-8 h-8 bg-gray-200 rounded-lg flex items-center justify-center hover:bg-gray-300 transition-all duration-200"
                             >
                               <Minus className="w-4 h-4 text-gray-700" />
@@ -253,12 +291,19 @@ export default function POSPage() {
                             <input
                               type="number"
                               value={item.cantidad}
-                              onChange={(e) => actualizarCantidad(item.id, parseInt(e.target.value) || 0)}
+                              onChange={(e) =>
+                                actualizarCantidad(
+                                  item.id,
+                                  parseInt(e.target.value) || 0,
+                                )
+                              }
                               className="w-16 text-center border border-gray-300 rounded-lg py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                               min="0"
                             />
                             <button
-                              onClick={() => actualizarCantidad(item.id, item.cantidad + 1)}
+                              onClick={() =>
+                                actualizarCantidad(item.id, item.cantidad + 1)
+                              }
                               className="w-8 h-8 bg-blue-600 text-white rounded-lg flex items-center justify-center hover:bg-blue-700 transition-all duration-200"
                             >
                               <Plus className="w-4 h-4" />
@@ -273,7 +318,9 @@ export default function POSPage() {
 
               <div className="pt-4 border-t border-gray-200">
                 <div className="flex justify-between items-center mb-4">
-                  <span className="text-lg font-semibold text-gray-700">Total:</span>
+                  <span className="text-lg font-semibold text-gray-700">
+                    Total:
+                  </span>
                   <span className="text-2xl font-bold text-blue-600">
                     Bs. {totalCarrito.toFixed(2)}
                   </span>
@@ -296,7 +343,7 @@ export default function POSPage() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         subtotal={totalCarrito}
-        cartItems={carrito.map(item => ({
+        cartItems={carrito.map((item) => ({
           productoId: item.id,
           cantidad: item.cantidad,
         }))}
@@ -314,4 +361,3 @@ export default function POSPage() {
     </div>
   );
 }
-

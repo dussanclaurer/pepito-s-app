@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useState, useEffect, FormEvent } from "react";
+import { useState, useEffect, FormEvent, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   Tag,
@@ -17,6 +17,8 @@ import {
   CheckCircle,
   AlertCircle,
   AlertTriangle,
+  ImagePlus,
+  Trash,
 } from "lucide-react";
 
 interface Categoria {
@@ -34,6 +36,7 @@ interface Producto {
   categoriaId: number;
   categoria: Categoria;
   cantidadVendida: number;
+  imagenUrl?: string | null;
 }
 
 interface Toast {
@@ -69,6 +72,11 @@ export default function InventarioPage() {
   const [modalProductoAbierto, setModalProductoAbierto] = useState(false);
   const [modalCategoriaAbierto, setModalCategoriaAbierto] = useState(false);
   const [productoAEditar, setProductoAEditar] = useState<Producto | null>(null);
+  // Estado de imagen
+  const [imagenPreview, setImagenPreview] = useState<string | null>(null);
+  const [imagenFile, setImagenFile] = useState<File | null>(null);
+  const [subiendoImagen, setSubiendoImagen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [categoriaFiltro, setCategoriaFiltro] = useState<number | "todas">(
     "todas",
   );
@@ -115,7 +123,7 @@ export default function InventarioPage() {
     type: "success" | "error" | "warning",
     message: string,
   ) => {
-    const id = Date.now();
+    const id = Date.now() + Math.random();
     setToasts((prev) => [...prev, { id, type, message }]);
     setTimeout(() => {
       setToasts((prev) => prev.filter((toast) => toast.id !== id));
@@ -168,7 +176,7 @@ export default function InventarioPage() {
       return;
 
     try {
-      await fetch("/api/productos", {
+      const res = await fetch("/api/productos", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -177,7 +185,14 @@ export default function InventarioPage() {
           inventario: parseInt(nuevoProducto.inventario as string) || 0,
         }),
       });
+      const nuevoProductoCreado = await res.json();
+      // Si hay imagen seleccionada, subirla al nuevo producto
+      if (imagenFile && nuevoProductoCreado?.id) {
+        await handleImageUpload(nuevoProductoCreado.id);
+      }
       setNuevoProducto(estadoInicialProducto);
+      setImagenPreview(null);
+      setImagenFile(null);
       setModalProductoAbierto(false);
       mostrarToast("success", "Producto creado exitosamente");
       cargarDatos();
@@ -188,7 +203,66 @@ export default function InventarioPage() {
 
   const handleEditClick = (producto: Producto) => {
     setProductoAEditar(producto);
+    setImagenPreview(producto.imagenUrl || null);
+    setImagenFile(null);
     setModalProductoAbierto(true);
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      mostrarToast("error", "El archivo debe ser una imagen");
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      mostrarToast("error", "La imagen no debe superar 2MB");
+      return;
+    }
+    setImagenFile(file);
+    const reader = new FileReader();
+    reader.onload = (ev) => setImagenPreview(ev.target?.result as string);
+    reader.readAsDataURL(file);
+  };
+
+  const handleImageUpload = async (productoId: number) => {
+    if (!imagenFile) return;
+    setSubiendoImagen(true);
+    try {
+      const formData = new FormData();
+      formData.append("imagen", imagenFile);
+      const res = await fetch(`/api/productos/${productoId}/imagen`, {
+        method: "POST",
+        body: formData,
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        mostrarToast("error", err.message || "Error al subir imagen");
+      } else {
+        mostrarToast("success", "Imagen guardada correctamente");
+      }
+    } catch {
+      mostrarToast("error", "Error al subir la imagen");
+    } finally {
+      setSubiendoImagen(false);
+      setImagenFile(null);
+    }
+  };
+
+  const handleQuitarImagen = async () => {
+    if (!productoAEditar) return;
+    try {
+      const res = await fetch(`/api/productos/${productoAEditar.id}/imagen`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error();
+      setImagenPreview(null);
+      setImagenFile(null);
+      mostrarToast("success", "Imagen eliminada correctamente");
+      cargarDatos();
+    } catch {
+      mostrarToast("error", "Error al eliminar la imagen");
+    }
   };
 
   const handleDeleteClick = (id: number) => {
@@ -258,8 +332,15 @@ export default function InventarioPage() {
         }),
       });
 
+      // Si hay imagen nueva, subirla
+      if (imagenFile) {
+        await handleImageUpload(productoAEditar.id);
+      }
+
       setModalProductoAbierto(false);
       setProductoAEditar(null);
+      setImagenPreview(null);
+      setImagenFile(null);
       mostrarToast("success", "Producto actualizado exitosamente");
       cargarDatos();
     } catch (error) {
@@ -345,6 +426,8 @@ export default function InventarioPage() {
     setModalProductoAbierto(false);
     setProductoAEditar(null);
     setNuevoProducto(estadoInicialProducto);
+    setImagenPreview(null);
+    setImagenFile(null);
   };
 
   const abrirModalNuevaCategoria = () => {
@@ -830,6 +913,63 @@ export default function InventarioPage() {
                     </option>
                   ))}
                 </select>
+              </div>
+
+              {/* Sección de Imagen */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Imagen del Producto
+                </label>
+                <div className="flex items-center gap-4">
+                  {/* Preview */}
+                  <div className="w-20 h-20 rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden bg-gray-50 flex-shrink-0">
+                    {imagenPreview ? (
+                      <img
+                        src={imagenPreview}
+                        alt="Preview"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <Cake className="w-8 h-8 text-gray-300" />
+                    )}
+                  </div>
+                  {/* Controles */}
+                  <div className="flex flex-col gap-2 flex-1">
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="hidden"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="flex items-center gap-2 px-4 py-2 bg-blue-50 border border-blue-200 text-blue-700 font-medium rounded-xl hover:bg-blue-100 transition-colors text-sm"
+                    >
+                      <ImagePlus className="w-4 h-4" />
+                      {imagenPreview ? "Cambiar imagen" : "Subir imagen"}
+                    </button>
+                    {imagenPreview && (
+                      <button
+                        type="button"
+                        onClick={handleQuitarImagen}
+                        className="flex items-center gap-2 px-4 py-2 bg-red-50 border border-red-200 text-red-600 font-medium rounded-xl hover:bg-red-100 transition-colors text-sm"
+                      >
+                        <Trash className="w-4 h-4" />
+                        Quitar imagen
+                      </button>
+                    )}
+                    {imagenFile && (
+                      <p className="text-xs text-green-600 font-medium">
+                        ✓ Nueva imagen lista para guardar
+                      </p>
+                    )}
+                    <p className="text-xs text-gray-400">
+                      JPG, PNG, WEBP · Máx. 2MB
+                    </p>
+                  </div>
+                </div>
               </div>
 
               <div className="flex justify-end gap-3 pt-4">
