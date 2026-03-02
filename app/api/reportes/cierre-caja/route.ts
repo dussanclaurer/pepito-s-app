@@ -217,9 +217,38 @@ export async function GET(request: Request) {
       0,
     );
 
+    // Gastos del día filtrados por rol
+    const gastosFilter =
+      userRole === "CAJERO"
+        ? {
+            creadoEn: { gte: inicioDelDia, lte: finDelDia },
+            registradoPorId: userId,
+          }
+        : {
+            creadoEn: { gte: inicioDelDia, lte: finDelDia },
+          };
+
+    const gastosDelDia = await prisma.gasto.findMany({
+      where: gastosFilter,
+      select: {
+        id: true,
+        descripcion: true,
+        monto: true,
+        metodoPago: true,
+        creadoEn: true,
+      },
+      orderBy: { creadoEn: "asc" },
+    });
+
+    const totalGastos = gastosDelDia.reduce((acc, g) => acc + g.monto, 0);
+    const totalNeto = totalGeneral - totalGastos;
+
     const respuesta = {
       totalesPorMetodo: reporteFormateado,
       totalGeneral: totalGeneral,
+      totalGastos: totalGastos,
+      totalNeto: totalNeto,
+      gastos: gastosDelDia,
       fechaReporte: new Date().toLocaleDateString("es-BO", { timeZone }),
       desglose: {
         totalVentas: totalGeneralVentas,

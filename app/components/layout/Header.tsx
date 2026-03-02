@@ -7,21 +7,22 @@ import { useRouter, usePathname } from "next/navigation";
 import { Role } from "@prisma/client";
 import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
-import { 
-  ShoppingCart, 
-  Store, 
-  ClipboardList, 
-  Settings, 
-  Package, 
-  Users, 
-  BarChart3, 
-  ScrollText, 
-  TrendingUp, 
+import {
+  ShoppingCart,
+  Store,
+  ClipboardList,
+  Settings,
+  Package,
+  Users,
+  BarChart3,
+  ScrollText,
+  TrendingUp,
   Wallet,
+  Receipt,
   ChevronDown,
   LogOut,
   Menu,
-  X
+  X,
 } from "lucide-react";
 
 type UserWithRole = { role?: Role };
@@ -34,7 +35,7 @@ export default function Header() {
   const [adminDropdownOpen, setAdminDropdownOpen] = useState(false);
   const [reportesDropdownOpen, setReportesDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  
+
   const ventasRef = useRef<HTMLDivElement>(null);
   const adminRef = useRef<HTMLDivElement>(null);
   const reportesRef = useRef<HTMLDivElement>(null);
@@ -42,19 +43,28 @@ export default function Header() {
   // Close dropdowns when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (ventasRef.current && !ventasRef.current.contains(event.target as Node)) {
+      if (
+        ventasRef.current &&
+        !ventasRef.current.contains(event.target as Node)
+      ) {
         setVentasDropdownOpen(false);
       }
-      if (adminRef.current && !adminRef.current.contains(event.target as Node)) {
+      if (
+        adminRef.current &&
+        !adminRef.current.contains(event.target as Node)
+      ) {
         setAdminDropdownOpen(false);
       }
-      if (reportesRef.current && !reportesRef.current.contains(event.target as Node)) {
+      if (
+        reportesRef.current &&
+        !reportesRef.current.contains(event.target as Node)
+      ) {
         setReportesDropdownOpen(false);
       }
     }
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   if (pathname === "/login") return null;
@@ -69,7 +79,7 @@ export default function Header() {
       : "bg-white text-blue-600 border border-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-blue-50 transition-colors text-sm min-w-[140px] justify-center";
 
   const getDropdownButtonClass = (paths: string[]) => {
-    const isActive = paths.some(path => pathname.startsWith(path));
+    const isActive = paths.some((path) => pathname.startsWith(path));
     return isActive
       ? "bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors shadow-md text-sm flex items-center gap-2 min-w-[140px] justify-center"
       : "bg-white text-blue-600 border border-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-blue-50 transition-colors text-sm flex items-center gap-2 min-w-[140px] justify-center";
@@ -83,13 +93,13 @@ export default function Header() {
         <div className="flex justify-between items-center py-4">
           {/* Logo y Nombre */}
           <div className="flex items-center space-x-4">
-              <Image
-                src="/favicon.ico"
-                alt="Pepito´s Logo"
-                width={50}
-                height={50}
-                className="rounded-lg"
-              />
+            <Image
+              src="/favicon.ico"
+              alt="Pepito´s Logo"
+              width={50}
+              height={50}
+              className="rounded-lg"
+            />
             <h1 className="text-2xl font-bold text-gray-800">Pepito´s</h1>
           </div>
 
@@ -122,7 +132,9 @@ export default function Header() {
                 >
                   <ShoppingCart className="w-4 h-4" />
                   Ventas
-                  <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${ventasDropdownOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown
+                    className={`w-4 h-4 transition-transform duration-300 ${ventasDropdownOpen ? "rotate-180" : ""}`}
+                  />
                 </button>
                 {ventasDropdownOpen && (
                   <div className="absolute top-full left-0 mt-2 w-48 backdrop-blur-lg bg-cyan-50/98 rounded-2xl shadow-2xl border border-cyan-200/50 py-2 z-50">
@@ -132,7 +144,9 @@ export default function Header() {
                         setVentasDropdownOpen(false);
                       }}
                       className={`w-full text-left px-4 py-2 hover:bg-blue-50 transition-all duration-200 flex items-center gap-2 ${
-                        pathname.startsWith("/pos") ? "bg-blue-50 text-blue-600 font-semibold" : "text-gray-700"
+                        pathname.startsWith("/pos")
+                          ? "bg-blue-50 text-blue-600 font-semibold"
+                          : "text-gray-700"
                       }`}
                     >
                       <Store className="w-4 h-4" />
@@ -144,7 +158,9 @@ export default function Header() {
                         setVentasDropdownOpen(false);
                       }}
                       className={`w-full text-left px-4 py-2 hover:bg-blue-50 transition-all duration-200 flex items-center gap-2 ${
-                        pathname.startsWith("/pedidos") ? "bg-blue-50 text-blue-600 font-semibold" : "text-gray-700"
+                        pathname.startsWith("/pedidos")
+                          ? "bg-blue-50 text-blue-600 font-semibold"
+                          : "text-gray-700"
                       }`}
                     >
                       <ClipboardList className="w-4 h-4" />
@@ -165,11 +181,16 @@ export default function Header() {
                         setVentasDropdownOpen(false);
                         setReportesDropdownOpen(false);
                       }}
-                      className={getDropdownButtonClass(["/inventario", "/admin/usuarios"])}
+                      className={getDropdownButtonClass([
+                        "/inventario",
+                        "/admin/usuarios",
+                      ])}
                     >
                       <Settings className="w-4 h-4" />
                       Admin
-                      <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${adminDropdownOpen ? 'rotate-180' : ''}`} />
+                      <ChevronDown
+                        className={`w-4 h-4 transition-transform duration-300 ${adminDropdownOpen ? "rotate-180" : ""}`}
+                      />
                     </button>
                     {adminDropdownOpen && (
                       <div className="absolute top-full left-0 mt-2 w-48 backdrop-blur-lg bg-cyan-50/98 rounded-2xl shadow-2xl border border-cyan-200/50 py-2 z-50">
@@ -178,8 +199,10 @@ export default function Header() {
                             router.push("/inventario");
                             setAdminDropdownOpen(false);
                           }}
-                           className={`w-full text-left px-4 py-2 hover:bg-blue-50 transition-all duration-200 flex items-center gap-2 ${
-                            pathname.startsWith("/inventario") ? "bg-blue-50 text-blue-600 font-semibold" : "text-gray-700"
+                          className={`w-full text-left px-4 py-2 hover:bg-blue-50 transition-all duration-200 flex items-center gap-2 ${
+                            pathname.startsWith("/inventario")
+                              ? "bg-blue-50 text-blue-600 font-semibold"
+                              : "text-gray-700"
                           }`}
                         >
                           <Package className="w-4 h-4" />
@@ -190,8 +213,10 @@ export default function Header() {
                             router.push("/admin/usuarios");
                             setAdminDropdownOpen(false);
                           }}
-                           className={`w-full text-left px-4 py-2 hover:bg-blue-50 transition-all duration-200 flex items-center gap-2 ${
-                            pathname.startsWith("/admin/usuarios") ? "bg-blue-50 text-blue-600 font-semibold" : "text-gray-700"
+                          className={`w-full text-left px-4 py-2 hover:bg-blue-50 transition-all duration-200 flex items-center gap-2 ${
+                            pathname.startsWith("/admin/usuarios")
+                              ? "bg-blue-50 text-blue-600 font-semibold"
+                              : "text-gray-700"
                           }`}
                         >
                           <Users className="w-4 h-4" />
@@ -209,11 +234,16 @@ export default function Header() {
                         setVentasDropdownOpen(false);
                         setAdminDropdownOpen(false);
                       }}
-                      className={getDropdownButtonClass(["/historial-ventas", "/reportes"])}
+                      className={getDropdownButtonClass([
+                        "/historial-ventas",
+                        "/reportes",
+                      ])}
                     >
                       <BarChart3 className="w-4 h-4" />
                       Reportes
-                      <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${reportesDropdownOpen ? 'rotate-180' : ''}`} />
+                      <ChevronDown
+                        className={`w-4 h-4 transition-transform duration-300 ${reportesDropdownOpen ? "rotate-180" : ""}`}
+                      />
                     </button>
                     {reportesDropdownOpen && (
                       <div className="absolute top-full left-0 mt-2 w-48 backdrop-blur-lg bg-cyan-50/98 rounded-2xl shadow-2xl border border-cyan-200/50 py-2 z-50">
@@ -222,8 +252,10 @@ export default function Header() {
                             router.push("/historial-ventas");
                             setReportesDropdownOpen(false);
                           }}
-                           className={`w-full text-left px-4 py-2 hover:bg-blue-50 transition-all duration-200 flex items-center gap-2 ${
-                            pathname.startsWith("/historial-ventas") ? "bg-blue-50 text-blue-600 font-semibold" : "text-gray-700"
+                          className={`w-full text-left px-4 py-2 hover:bg-blue-50 transition-all duration-200 flex items-center gap-2 ${
+                            pathname.startsWith("/historial-ventas")
+                              ? "bg-blue-50 text-blue-600 font-semibold"
+                              : "text-gray-700"
                           }`}
                         >
                           <ScrollText className="w-4 h-4" />
@@ -234,8 +266,10 @@ export default function Header() {
                             router.push("/reportes");
                             setReportesDropdownOpen(false);
                           }}
-                           className={`w-full text-left px-4 py-2 hover:bg-blue-50 transition-all duration-200 flex items-center gap-2 ${
-                            pathname.startsWith("/reportes") ? "bg-blue-50 text-blue-600 font-semibold" : "text-gray-700"
+                          className={`w-full text-left px-4 py-2 hover:bg-blue-50 transition-all duration-200 flex items-center gap-2 ${
+                            pathname.startsWith("/reportes")
+                              ? "bg-blue-50 text-blue-600 font-semibold"
+                              : "text-gray-700"
                           }`}
                         >
                           <TrendingUp className="w-4 h-4" />
@@ -246,6 +280,15 @@ export default function Header() {
                   </div>
                 </>
               )}
+
+              {/* Gastos - Standalone */}
+              <button
+                onClick={() => router.push("/gastos")}
+                className={`${getButtonClass("/gastos")} flex items-center gap-2`}
+              >
+                <Receipt className="w-4 h-4" />
+                Gastos
+              </button>
 
               {/* Cierre de Caja - Standalone */}
               <button
@@ -309,7 +352,7 @@ export default function Header() {
               {userRole === Role.ADMIN && (
                 <>
                   <div className="border-t border-cyan-200/50 my-2"></div>
-                  
+
                   <button
                     onClick={() => {
                       router.push("/inventario");
@@ -360,6 +403,17 @@ export default function Header() {
 
               <button
                 onClick={() => {
+                  router.push("/gastos");
+                  setMobileMenuOpen(false);
+                }}
+                className="flex items-center gap-3 w-full text-left px-4 py-4 rounded-xl hover:bg-cyan-200/50 transition-all text-gray-800 font-semibold touch-manipulation"
+              >
+                <Receipt className="w-5 h-5" />
+                Gastos
+              </button>
+
+              <button
+                onClick={() => {
                   router.push("/cierre-caja");
                   setMobileMenuOpen(false);
                 }}
@@ -371,9 +425,11 @@ export default function Header() {
 
               {/* Usuario y Cerrar Sesión */}
               <div className="border-t border-cyan-200/50 my-2"></div>
-              
+
               <div className="px-4 py-3 bg-blue-100/50 rounded-xl">
-                <p className="font-semibold text-gray-800">{session.user?.name}</p>
+                <p className="font-semibold text-gray-800">
+                  {session.user?.name}
+                </p>
                 <span className="inline-block text-xs font-medium bg-blue-200 text-blue-800 px-2 py-1 rounded-full mt-1">
                   {(session.user as UserWithRole)?.role}
                 </span>
@@ -393,4 +449,3 @@ export default function Header() {
     </header>
   );
 }
-

@@ -155,12 +155,25 @@ model User {
   password String?
   role     Role    @default(CAJERO)
 
-  // Relaciones inversas para ventas y pedidos
+  // Relaciones inversas para ventas, pedidos y gastos
   ventas  Venta[]
   pedidos Pedido[]
+  gastos  Gasto[]
 
   accounts Account[]
   sessions Session[]
+}
+
+// Modelo para registrar los gastos del negocio
+model Gasto {
+  id          Int        @id @default(autoincrement())
+  descripcion String
+  monto       Float
+  metodoPago  MetodoPago
+  creadoEn    DateTime   @default(now())
+
+  registradoPorId String?
+  registradoPor   User?   @relation(fields: [registradoPorId], references: [id])
 }
 
 // Modelo para las cuentas 
